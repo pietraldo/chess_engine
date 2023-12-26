@@ -1,4 +1,6 @@
 #include <iostream>
+#include <math.h>
+
 #include <cstdint>
 #include "variables.h"
 
@@ -13,25 +15,26 @@ void printBoard(Bitboard board);
 int bit(Bitboard number, Bitboard index);
 void QueenSlidingMoveGenartionExample();
 Bitboard reverseBits(Bitboard n);
+int h1(Bitboard b);
 
-void KnightAttack();
+Bitboard* KnightAttack();
+Bitboard* RookAttack();
+
+void init();
+
 
 int main()
 {
-	KnightAttack();
+	init();
+	Bitboard* knightA=KnightAttack();
+	printBoard(knightA[h1(E4)]);
 	//QueenSlidingMoveGenartionExample();
 }
 
-void KnightAttack()
+Bitboard* KnightAttack()
 {
 	Bitboard attacks[M] = {0};
-	Bitboard fields[M];
-	fields[0] = 1ULL;
-	for (int i = 1; i < M; i++)
-	{
-		fields[i] = 1ULL << i;
 	
-	}
 	
 	for (int i = 0; i < M; i++)
 	{
@@ -53,12 +56,54 @@ void KnightAttack()
 			attacks[i] |= fields[i -6];
 
 	}
+	
+	return attacks;
+}
 
-	for (int i = 48; i < 64; i++)
+void init()
+{
+	fields[0] = 1ULL;
+	for (int i = 1; i < M; i++)
 	{
-		cout << endl << "Pole: " << i;
-		printBoard(attacks[i]);
+		fields[i] = 1ULL << i;
+
 	}
+
+	vertical[0] = A1 | A2 | A3 | A4 | A5 | A6 | A7 | A8;
+	for (int i = 1; i < N; i++)
+		vertical[i] = vertical[0] << i;
+
+	horizontal[0] = A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1;
+	for (int i = 1; i < N; i++)
+		horizontal[i] = horizontal[0] << (i*8);
+
+	Bitboard frame = horizontal[0] | horizontal[N - 1] | vertical[0] | vertical[N - 1];
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			rookFiles[i * N + j] = horizontal[i] | vertical[j];
+			rookFiles[i * N + j] ^= (rookFiles[i * N + j] & frame);
+			rookFiles[i * N + j] ^= fields[i * N + j];
+		}
+	}
+	rookFiles[0] = (horizontal[0] | vertical[0]) ^ (fields[0] | fields[N - 1] | fields[N * (N - 1)]);
+	rookFiles[N-1] = (horizontal[0] | vertical[N-1]) ^ (fields[N-1] | fields[N *N-1] | fields[0]);
+	rookFiles[N*(N-1)] = (horizontal[N-1] | vertical[0]) ^ (fields[0] | fields[N*N - 1] | fields[N * (N - 1)]);
+	rookFiles[N*N-1] = (horizontal[N-1] | vertical[N-1]) ^ (fields[N*N-1] | fields[N - 1] | fields[N * (N - 1)]);
+
+
+	printBoard(rookFiles[h1(D4)]);
+}
+
+Bitboard* RookAttack()
+{
+	return nullptr;
+}
+
+int h1(Bitboard b)
+{
+	return log2(b);
 }
 
 void QueenSlidingMoveGenartionExample()

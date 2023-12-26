@@ -1,5 +1,8 @@
 #pragma once
 
+#define M 64
+#define N 8
+
 using Bitboard = uint64_t;
 
 Bitboard empty = 0ULL;
@@ -93,3 +96,9 @@ constexpr Bitboard Rank5BB = Rank1BB << (8 * 4);
 constexpr Bitboard Rank6BB = Rank1BB << (8 * 5);
 constexpr Bitboard Rank7BB = Rank1BB << (8 * 6);
 constexpr Bitboard Rank8BB = Rank1BB << (8 * 7);
+
+Bitboard fields[M];
+Bitboard vertical[N];
+Bitboard horizontal[N];
+
+Bitboard rookFiles[M];
