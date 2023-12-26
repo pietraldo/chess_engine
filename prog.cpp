@@ -4,22 +4,61 @@
 
 
 #define N 8
-
+#define M 64
 
 using namespace std;
-
-
 
 
 void printBoard(Bitboard board);
 int bit(Bitboard number, Bitboard index);
 void QueenSlidingMoveGenartionExample();
-uint64_t reverseBits(uint64_t n);
+Bitboard reverseBits(Bitboard n);
 
+void KnightAttack();
 
 int main()
 {
-	QueenSlidingMoveGenartionExample();
+	KnightAttack();
+	//QueenSlidingMoveGenartionExample();
+}
+
+void KnightAttack()
+{
+	Bitboard attacks[M] = {0};
+	Bitboard fields[M];
+	fields[0] = 1ULL;
+	for (int i = 1; i < M; i++)
+	{
+		fields[i] = 1ULL << i;
+	
+	}
+	
+	for (int i = 0; i < M; i++)
+	{
+		if (i/8<=6 && i % 8 >= 2)
+			attacks[i] |= fields[i + 6];
+		if (i / 8 <= 5 && i%8>=1)
+			attacks[i] |= fields[i + 15];
+		if (i/8<=5 && i % 8 <= 6)
+			attacks[i] |= fields[i + 17];
+		if (i/8<=6 && i % 8 <=5)
+			attacks[i] |= fields[i + 10];
+		if (i/8 >=1 && i % 8 >= 2)
+			attacks[i] |= fields[i - 10];
+		if (i/8>=2 && i % 8 >= 1)
+			attacks[i] |= fields[i - 17];
+		if (i/8 >=2 && i % 8 <= 6)
+			attacks[i] |= fields[i -15];
+		if (i/8 >=1 && i % 8 <=5)
+			attacks[i] |= fields[i -6];
+
+	}
+
+	for (int i = 48; i < 64; i++)
+	{
+		cout << endl << "Pole: " << i;
+		printBoard(attacks[i]);
+	}
 }
 
 void QueenSlidingMoveGenartionExample()
@@ -64,8 +103,8 @@ void QueenSlidingMoveGenartionExample()
 
 }
 
-uint64_t reverseBits(uint64_t n) {
-	uint64_t result = 0;
+Bitboard reverseBits(Bitboard n) {
+	Bitboard result = 0;
 	for (int i = 0; i < 64; ++i) {
 		result = (result << 1) | (n & 1);
 		n >>= 1;
