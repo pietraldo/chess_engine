@@ -27,17 +27,24 @@ int main()
 {
 	init();
 	Bitboard* knightA=KnightAttack();
-	printBoard(knightA[h1(E4)]);
+	Bitboard* rookA = RookAttack();
+
+	printBoard(knightA[1]);
+	
+	
+	
 	//QueenSlidingMoveGenartionExample();
+	free(knightA);
 }
 
 Bitboard* KnightAttack()
 {
-	Bitboard attacks[M] = {0};
+	Bitboard* attacks =  new Bitboard[M];
 	
 	
 	for (int i = 0; i < M; i++)
 	{
+		attacks[i] = 0;
 		if (i/8<=6 && i % 8 >= 2)
 			attacks[i] |= fields[i + 6];
 		if (i / 8 <= 5 && i%8>=1)
@@ -84,20 +91,46 @@ void init()
 		{
 			rookFiles[i * N + j] = horizontal[i] | vertical[j];
 			rookFiles[i * N + j] ^= (rookFiles[i * N + j] & frame);
-			rookFiles[i * N + j] ^= fields[i * N + j];
+			
+
+			if (i == 0)
+				rookFiles[i * N + j] |= (horizontal[i] ^ (fields[0] | fields[N - 1]));
+			else if(i==(N-1))
+				rookFiles[i * N + j] |= (horizontal[i] ^ (fields[(N-1)*N] | fields[N*N - 1]));
+			
+			if (j == 0)
+				rookFiles[i * N + j] |= (vertical[j] ^ (fields[0] | fields[(N - 1)*N]));
+			else if (j == (N - 1))
+				rookFiles[i * N + j] |= (vertical[j] ^ (fields[N-1] | fields[N * N - 1]));
+
+			if((fields[i*N+j]&rookFiles[i*N+j])!=0)
+				rookFiles[i * N + j] ^= fields[i * N + j];
 		}
 	}
-	rookFiles[0] = (horizontal[0] | vertical[0]) ^ (fields[0] | fields[N - 1] | fields[N * (N - 1)]);
-	rookFiles[N-1] = (horizontal[0] | vertical[N-1]) ^ (fields[N-1] | fields[N *N-1] | fields[0]);
-	rookFiles[N*(N-1)] = (horizontal[N-1] | vertical[0]) ^ (fields[0] | fields[N*N - 1] | fields[N * (N - 1)]);
-	rookFiles[N*N-1] = (horizontal[N-1] | vertical[N-1]) ^ (fields[N*N-1] | fields[N - 1] | fields[N * (N - 1)]);
-
-
-	printBoard(rookFiles[h1(D4)]);
+	printBoard(rookFiles[h1(C3)]);
 }
 
 Bitboard* RookAttack()
 {
+	// 6 char mask 2^6
+	Bitboard maskHor[64];
+	Bitboard maskVer[64] = {0};
+
+
+	for(int i=0; i<64; i++)
+		maskHor[i]=i;
+	for (int i = 0; i < 64; i++)
+	{
+
+		for (int j = 0; j < 6; j++)
+		{
+			maskVer[i] |= (0 != (maskHor[i] & fields[j])) ? fields[j * N] : 0;
+		}
+		printBoard(maskVer[i]);
+	}
+
+
+
 	return nullptr;
 }
 
