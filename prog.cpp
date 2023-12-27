@@ -1,9 +1,14 @@
 #include <iostream>
 #include <math.h>
-
+#include <time.h>
 #include <cstdint>
-#include "variables.h"
+#include <random>
+#include <cstdlib> 
 
+
+
+#include "variables.h"
+#include "GamePrepare.h"
 
 #define N 8
 #define M 64
@@ -11,31 +16,34 @@
 using namespace std;
 
 
-void printBoard(Bitboard board);
+
 int bit(Bitboard number, Bitboard index);
 void QueenSlidingMoveGenartionExample();
 Bitboard reverseBits(Bitboard n);
 int h1(Bitboard b);
+int h2(Bitboard b, int index);
 
 Bitboard* KnightAttack();
-Bitboard* RookAttack();
 
 void init();
 
 
 int main()
 {
+	//srand(12321);
 	init();
-	Bitboard* knightA=KnightAttack();
-	Bitboard* rookA = RookAttack();
+	//Bitboard* knightA=KnightAttack();
+	//Bitboard* rookA = RookAttack();
+	//
+	
+	GamePrepare::Prepare();
 
-	printBoard(knightA[1]);
-	
-	
-	
 	//QueenSlidingMoveGenartionExample();
-	free(knightA);
+	/*delete [] knightA;*/
 }
+
+
+
 
 Bitboard* KnightAttack()
 {
@@ -107,36 +115,19 @@ void init()
 				rookFiles[i * N + j] ^= fields[i * N + j];
 		}
 	}
-	printBoard(rookFiles[h1(C3)]);
+	//printBoard(rookFiles[h1(C3)]);
 }
 
-Bitboard* RookAttack()
-{
-	// 6 char mask 2^6
-	Bitboard maskHor[64];
-	Bitboard maskVer[64] = {0};
 
-
-	for(int i=0; i<64; i++)
-		maskHor[i]=i;
-	for (int i = 0; i < 64; i++)
-	{
-
-		for (int j = 0; j < 6; j++)
-		{
-			maskVer[i] |= (0 != (maskHor[i] & fields[j])) ? fields[j * N] : 0;
-		}
-		printBoard(maskVer[i]);
-	}
-
-
-
-	return nullptr;
-}
 
 int h1(Bitboard b)
 {
-	return log2(b);
+	return (int)log2(b);
+}
+
+int h2(Bitboard k, int index)
+{
+	return (k * 36029351611875328ULL) >> (64 - 12);
 }
 
 void QueenSlidingMoveGenartionExample()

@@ -1,104 +1,117 @@
 #pragma once
 
+#include <cstdint>
+
 #define M 64
 #define N 8
 
 using Bitboard = uint64_t;
 
-Bitboard empty = 0ULL;
+extern Bitboard empty;
 
-Bitboard A1 = 1ULL << 0;
-Bitboard B1 = 1ULL << 1;
-Bitboard C1 = 1ULL << 2;
-Bitboard D1 = 1ULL << 3;
-Bitboard E1 = 1ULL << 4;
-Bitboard F1 = 1ULL << 5;
-Bitboard G1 = 1ULL << 6;
-Bitboard H1 = 1ULL << 7;
+extern Bitboard A1;
+extern Bitboard B1;
+extern Bitboard C1;
+extern Bitboard D1;
+extern Bitboard E1;
+extern Bitboard F1;
+extern Bitboard G1;
+extern Bitboard H1;
 
-Bitboard A2 = 1ULL << 8;
-Bitboard B2 = 1ULL << 9;
-Bitboard C2 = 1ULL << 10;
-Bitboard D2 = 1ULL << 11;
-Bitboard E2 = 1ULL << 12;
-Bitboard F2 = 1ULL << 13;
-Bitboard G2 = 1ULL << 14;
-Bitboard H2 = 1ULL << 15;
+extern Bitboard A2;
+extern Bitboard B2;
+extern Bitboard C2;
+extern Bitboard D2;
+extern Bitboard E2;
+extern Bitboard F2;
+extern Bitboard G2;
+extern Bitboard H2;
 
-Bitboard A3 = 1ULL << 16;
-Bitboard B3 = 1ULL << 17;
-Bitboard C3 = 1ULL << 18;
-Bitboard D3 = 1ULL << 19;
-Bitboard E3 = 1ULL << 20;
-Bitboard F3 = 1ULL << 21;
-Bitboard G3 = 1ULL << 22;
-Bitboard H3 = 1ULL << 23;
+extern Bitboard A3;
+extern Bitboard B3;
+extern Bitboard C3;
+extern Bitboard D3;
+extern Bitboard E3;
+extern Bitboard F3;
+extern Bitboard G3;
+extern Bitboard H3;
 
-Bitboard A4 = 1ULL << 24;
-Bitboard B4 = 1ULL << 25;
-Bitboard C4 = 1ULL << 26;
-Bitboard D4 = 1ULL << 27;
-Bitboard E4 = 1ULL << 28;
-Bitboard F4 = 1ULL << 29;
-Bitboard G4 = 1ULL << 30;
-Bitboard H4 = 1ULL << 31;
+extern Bitboard A4;
+extern Bitboard B4;
+extern Bitboard C4;
+extern Bitboard D4;
+extern Bitboard E4;
+extern Bitboard F4;
+extern Bitboard G4;
+extern Bitboard H4;
 
-Bitboard A5 = 1ULL << 32;
-Bitboard B5 = 1ULL << 33;
-Bitboard C5 = 1ULL << 34;
-Bitboard D5 = 1ULL << 35;
-Bitboard E5 = 1ULL << 36;
-Bitboard F5 = 1ULL << 37;
-Bitboard G5 = 1ULL << 38;
-Bitboard H5 = 1ULL << 39;
+extern Bitboard A5;
+extern Bitboard B5;
+extern Bitboard C5;
+extern Bitboard D5;
+extern Bitboard E5;
+extern Bitboard F5;
+extern Bitboard G5;
+extern Bitboard H5;
 
-Bitboard A6 = 1ULL << 40;
-Bitboard B6 = 1ULL << 41;
-Bitboard C6 = 1ULL << 42;
-Bitboard D6 = 1ULL << 43;
-Bitboard E6 = 1ULL << 44;
-Bitboard F6 = 1ULL << 45;
-Bitboard G6 = 1ULL << 46;
-Bitboard H6 = 1ULL << 47;
+extern Bitboard A6;
+extern Bitboard B6;
+extern Bitboard C6;
+extern Bitboard D6;
+extern Bitboard E6;
+extern Bitboard F6;
+extern Bitboard G6;
+extern Bitboard H6;
 
-Bitboard A7 = 1ULL << 48;
-Bitboard B7 = 1ULL << 49;
-Bitboard C7 = 1ULL << 50;
-Bitboard D7 = 1ULL << 51;
-Bitboard E7 = 1ULL << 52;
-Bitboard F7 = 1ULL << 53;
-Bitboard G7 = 1ULL << 54;
-Bitboard H7 = 1ULL << 55;
+extern Bitboard A7;
+extern Bitboard B7;
+extern Bitboard C7;
+extern Bitboard D7;
+extern Bitboard E7;
+extern Bitboard F7;
+extern Bitboard G7;
+extern Bitboard H7;
 
-Bitboard A8 = 1ULL << 56;
-Bitboard B8 = 1ULL << 57;
-Bitboard C8 = 1ULL << 58;
-Bitboard D8 = 1ULL << 59;
-Bitboard E8 = 1ULL << 60;
-Bitboard F8 = 1ULL << 61;
-Bitboard G8 = 1ULL << 62;
-Bitboard H8 = 1ULL << 63;
+extern Bitboard A8;
+extern Bitboard B8;
+extern Bitboard C8;
+extern Bitboard D8;
+extern Bitboard E8;
+extern Bitboard F8;
+extern Bitboard G8;
+extern Bitboard H8;
 
-constexpr Bitboard FileABB = 0x0101010101010101ULL;
-constexpr Bitboard FileBBB = FileABB << 1;
-constexpr Bitboard FileCBB = FileABB << 2;
-constexpr Bitboard FileDBB = FileABB << 3;
-constexpr Bitboard FileEBB = FileABB << 4;
-constexpr Bitboard FileFBB = FileABB << 5;
-constexpr Bitboard FileGBB = FileABB << 6;
-constexpr Bitboard FileHBB = FileABB << 7;
 
-constexpr Bitboard Rank1BB = 0xFF;
-constexpr Bitboard Rank2BB = Rank1BB << (8 * 1);
-constexpr Bitboard Rank3BB = Rank1BB << (8 * 2);
-constexpr Bitboard Rank4BB = Rank1BB << (8 * 3);
-constexpr Bitboard Rank5BB = Rank1BB << (8 * 4);
-constexpr Bitboard Rank6BB = Rank1BB << (8 * 5);
-constexpr Bitboard Rank7BB = Rank1BB << (8 * 6);
-constexpr Bitboard Rank8BB = Rank1BB << (8 * 7);
 
-Bitboard fields[M];
-Bitboard vertical[N];
-Bitboard horizontal[N];
+extern Bitboard FileABB;
+extern Bitboard FileBBB;
+extern Bitboard FileCBB;
+extern Bitboard FileDBB;
+extern Bitboard FileEBB;
+extern Bitboard FileFBB;
+extern Bitboard FileGBB;
+extern Bitboard FileHBB;
 
-Bitboard rookFiles[M];
+extern Bitboard Rank1BB;
+extern Bitboard Rank2BB;
+extern Bitboard Rank3BB;
+extern Bitboard Rank4BB;
+extern Bitboard Rank5BB;
+extern Bitboard Rank6BB;
+extern Bitboard Rank7BB;
+extern Bitboard Rank8BB;
+
+extern Bitboard fields[M];
+extern Bitboard vertical[N];
+extern Bitboard horizontal[N];
+
+extern Bitboard rookFiles[M];
+
+
+extern void printBoard(Bitboard board);
+
+
+
+
+
+
