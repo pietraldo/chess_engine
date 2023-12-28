@@ -30,16 +30,36 @@ void init();
 
 int main()
 {
-	//srand(12321);
 	init();
-	//Bitboard* knightA=KnightAttack();
-	//Bitboard* rookA = RookAttack();
-	//
 	
-	GamePrepare::Prepare();
+	GamePrepare prepare = GamePrepare();
+	
 
-	//QueenSlidingMoveGenartionExample();
-	/*delete [] knightA;*/
+
+
+	// game
+	//Bitboard occupancy = A3 | D4 | G8 | F4 | D5 | E7 | C5 | F2 | H4 | D3 | B4; // zajete pola na planszy
+	//Bitboard rook = G1; // pole na ktorej jest wieza
+	//printBoard(occupancy); // wyswietlanie planszy
+
+	//// generowanie wszystkich ruchow
+	//int num = log2(rook);
+	//occupancy &= (rookMask[num]);
+	//Bitboard att = prepare.attackRook[num][occupancy * prepare.magicRook[num] >> (M - prepare.rookShifts[num])];
+	//printBoard(att);// wyswietlanie wszystkich ruchow
+
+
+	// game
+	Bitboard occupancy2 = A3 | D4 | G8 | F4 | D5 | E7 | C5 | F2 | H4 | D3 | B4; // zajete pola na planszy
+	Bitboard bishop = C4; // pole na ktorej jest wieza
+
+	printBoard(occupancy2); // wyswietlanie planszy
+
+	// generowanie wszystkich ruchow
+	int num2 = log2(bishop);
+	occupancy2 &= (bishopMask[num2]);
+	Bitboard att2 = prepare.attacBishop[num2][(occupancy2 * prepare.magicBishop[num2]) >> (M - prepare.bishopShifts[num2])];
+	printBoard(att2);// wyswietlanie wszystkich ruchow
 }
 
 
@@ -92,30 +112,65 @@ void init()
 	for (int i = 1; i < N; i++)
 		horizontal[i] = horizontal[0] << (i*8);
 
+
+
 	Bitboard frame = horizontal[0] | horizontal[N - 1] | vertical[0] | vertical[N - 1];
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < N; j++)
 		{
-			rookFiles[i * N + j] = horizontal[i] | vertical[j];
-			rookFiles[i * N + j] ^= (rookFiles[i * N + j] & frame);
+			rookMask[i * N + j] = horizontal[i] | vertical[j];
+			rookMask[i * N + j] ^= (rookMask[i * N + j] & frame);
 			
 
 			if (i == 0)
-				rookFiles[i * N + j] |= (horizontal[i] ^ (fields[0] | fields[N - 1]));
+				rookMask[i * N + j] |= (horizontal[i] ^ (fields[0] | fields[N - 1]));
 			else if(i==(N-1))
-				rookFiles[i * N + j] |= (horizontal[i] ^ (fields[(N-1)*N] | fields[N*N - 1]));
+				rookMask[i * N + j] |= (horizontal[i] ^ (fields[(N-1)*N] | fields[N*N - 1]));
 			
 			if (j == 0)
-				rookFiles[i * N + j] |= (vertical[j] ^ (fields[0] | fields[(N - 1)*N]));
+				rookMask[i * N + j] |= (vertical[j] ^ (fields[0] | fields[(N - 1)*N]));
 			else if (j == (N - 1))
-				rookFiles[i * N + j] |= (vertical[j] ^ (fields[N-1] | fields[N * N - 1]));
+				rookMask[i * N + j] |= (vertical[j] ^ (fields[N-1] | fields[N * N - 1]));
 
-			if((fields[i*N+j]&rookFiles[i*N+j])!=0)
-				rookFiles[i * N + j] ^= fields[i * N + j];
+			if((fields[i*N+j]& rookMask[i*N+j])!=0)
+				rookMask[i * N + j] ^= fields[i * N + j];
 		}
 	}
-	//printBoard(rookFiles[h1(C3)]);
+	//printBoard(rookMask[h1(C3)]);
+
+	for (int i = 0; i < M; i++)
+	{
+		bishopMask[i] = 0;
+
+		auto add = [&](int k, int j) {
+			int y = i / 8;
+			int x = i % 8;
+			while (x + j < 7 && x + j >= 1 && y + k < 7 && y + k >= 1)
+			{
+				bishopMask[i] |= fields[(y + k) * 8 + (x + j)];
+				x += j;
+				y += k;
+			}
+		};
+
+		add(-1, 1);
+		add(1, 1);
+		add(1, -1);
+		add(-1, -1);
+	}
+
+	// testing 
+   	/*cout<<endl<<endl << "E5" << endl;
+	printBoard(bishopMask[h1(E5)]);
+	cout<<endl<<endl << "H1" << endl;
+	printBoard(bishopMask[h1(H1)]);
+	cout<<endl<<endl << "A8" << endl;
+	printBoard(bishopMask[h1(A8)]);
+	cout<<endl<<endl << "F1" << endl;
+	printBoard(bishopMask[h1(F1)]);
+	cout<<endl<<endl << "H4" << endl;
+	printBoard(bishopMask[h1(H4)]);*/
 }
 
 

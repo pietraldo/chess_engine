@@ -105,7 +105,9 @@ extern Bitboard fields[M];
 extern Bitboard vertical[N];
 extern Bitboard horizontal[N];
 
-extern Bitboard rookFiles[M];
+
+extern Bitboard rookMask[M];
+extern Bitboard bishopMask[M];
 
 
 extern void printBoard(Bitboard board);

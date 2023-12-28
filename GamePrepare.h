@@ -1,20 +1,42 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 
 #include "MagicBitboards.h"
 #include "variables.h"
+
 
 class GamePrepare
 {
 public:
 	
-	static void Prepare(); 
-	static void RookAttacks();
+	// rooks
+	Bitboard magicRook[M];
+	Bitboard* attackRook[M];
 
-private:
+	// bishops
+	Bitboard magicBishop[M];
+	Bitboard* attacBishop[M];
+
+	GamePrepare(); 
+	
 	static int rookShifts[M];
-	static Bitboard rookMoveForPossition(Bitboard occupancy, int index);
-	static Bitboard reverseBits(Bitboard n);
+	static int bishopShifts[M];
+private:
+	
+	
+	Bitboard reverseBits(Bitboard n);
+	
+	void RookAttacks();
+	Bitboard rookMoveForPossition(Bitboard occupancy, int index);
+	Bitboard* generateKeysRook(int index, Bitboard* combHor, Bitboard* combVer);
+
+	void BishopAttacks();
+	Bitboard bishopMoveForPossition(Bitboard occupancy, int index);
+	Bitboard* generateKeysBishop(int index);
+	
+	void writeNumbersToFile(string name, Bitboard* numbers);
+	void readNumbersFromFile(string name, Bitboard* numbers);
 };
 

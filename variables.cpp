@@ -105,7 +105,9 @@ Bitboard fields[M];
 Bitboard vertical[N];
 Bitboard horizontal[N];
 
-Bitboard rookFiles[M];
+
+Bitboard rookMask[M];
+Bitboard bishopMask[M];
 
 
 
