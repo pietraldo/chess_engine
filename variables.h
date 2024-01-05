@@ -7,6 +7,26 @@
 
 using Bitboard = uint64_t;
 
+typedef struct Board
+{
+	Bitboard occupancyW;
+	Bitboard occupancyB;
+	Bitboard pawnW;
+	Bitboard pawnB;
+	Bitboard kingW;
+	Bitboard kingB;
+	Bitboard queenW;
+	Bitboard queenB;
+	Bitboard bishopW;
+	Bitboard bishopB;
+	Bitboard rookW;
+	Bitboard rookB;
+	Bitboard knightB;
+	Bitboard knightW;
+};
+
+enum Color {WHITE, BLACK};
+
 extern Bitboard empty;
 
 extern Bitboard A1;

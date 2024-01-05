@@ -6,4 +6,5 @@
 using namespace std;
 
 int bit(Bitboard number, Bitboard index);
-void printBoard(Bitboard);
+void printBitboard(Bitboard);
+void printBoard(Board);
