@@ -18,7 +18,7 @@ public:
 	Bitboard findMagicNumber(Bitboard* keys, int keys_size,  int relativeBits);
 
 private:
-	const unsigned int seed = 588912;
+	const unsigned int seed = 5882312;
 	Bitboard random_bitboard();
 	Bitboard random_bitboard_fewbits();
 };
