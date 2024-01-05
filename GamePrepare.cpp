@@ -24,6 +24,18 @@
 			6, 5, 5, 5, 5, 5, 5, 6,
  };
 
+ Bitboard* GamePrepare::attacBishop[M];
+ Bitboard GamePrepare::magicBishop[M];
+
+ Bitboard GamePrepare::magicRook[M];
+ Bitboard* GamePrepare::attackRook[M];
+ Bitboard GamePrepare::attackKnight[M];
+ Bitboard GamePrepare::attackKing[M];
+ Bitboard GamePrepare::attackPawnW[M];
+ Bitboard GamePrepare::pawnMovesW[M];
+ Bitboard GamePrepare::attackPawnB[M];
+ Bitboard GamePrepare::pawnMovesB[M];
+
  GamePrepare::GamePrepare()
  {
 	 init();
@@ -37,7 +49,7 @@
 	 PawnMoves();
  }
 
- Bitboard GamePrepare::rookMoveForPossition(Bitboard occupancy, int index)
+Bitboard GamePrepare::rookMoveForPossition(Bitboard occupancy, int index)
  {
 	 
 	 Bitboard file = fields[index];
@@ -274,7 +286,7 @@
 			 magicRook[index] = magic;
 			 cout << magicRook[index] << endl;
 		 }
-
+		 
 		 // generating attacks for rooks
 		 for (int i = 0; i < exp2(size); i++)
 		 {
@@ -310,24 +322,28 @@
 
  void GamePrepare::PawnAttacks()
  {
+	 // TODO: zrobic attaki na pierwszymi i ostatnim rzedzie
 	 for (int i = 0; i < M; i++)
 	 {
-		 attackPawnW[i] = 0;
-		 attackPawnB[i] = 0;
+		attackPawnW[i] = 0;
+		attackPawnB[i] = 0;
 
-		 if (i >= 8 && i <= 55)
-		 {
-			 if (i % 8 >= 1)
-			 {
-				 attackPawnW[i] |= fields[i + 7];
-				 attackPawnB[i] |= fields[i - 9];
-			 }
-			 if (i % 8 <= 6)
-			 {
-				 attackPawnW[i] |= fields[i + 9];
-				 attackPawnB[i] |= fields[i - 7];
-			 }
-		 }
+		if (i % 8 >= 1 && i <= 55)
+		{
+			attackPawnW[i] |= fields[i + 7];
+		}
+		if (i >= 8 && i % 8 >= 1)
+		{
+		attackPawnB[i] |= fields[i - 9];
+		}
+		if (i >= 8 && i % 8 <= 6)
+		{
+			attackPawnB[i] |= fields[i - 7];
+		}
+		if (i % 8 <= 6 && i <= 55)
+		{
+			attackPawnW[i] |= fields[i + 9];
+		} 
 	 }
  }
 

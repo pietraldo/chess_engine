@@ -23,7 +23,14 @@ typedef struct Board
 	Bitboard rookB;
 	Bitboard knightB;
 	Bitboard knightW;
+	bool BLC; //black right to long castle
+	bool BSC; //black right to short castle
+	bool WLC; //white right to long castle
+	bool WSC; //white right to short castle
+	Bitboard onPassantField;
 };
+
+
 
 enum Color {WHITE, BLACK};
 
@@ -130,7 +137,8 @@ extern Bitboard rookMask[M];
 extern Bitboard bishopMask[M];
 
 
-extern void printBoard(Bitboard board);
+extern void printBoard(Board);
+extern void printBitboard(Bitboard board);
 
 
 

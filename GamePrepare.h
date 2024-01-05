@@ -15,31 +15,32 @@ public:
 
 
 	// rooks
-	Bitboard magicRook[M];
-	Bitboard* attackRook[M];
+	static Bitboard magicRook[M];
+	static Bitboard* attackRook[M];
 	static int rookShifts[M];
 
 	// bishops
-	Bitboard magicBishop[M];
-	Bitboard* attacBishop[M];
+	static Bitboard magicBishop[M];
+	static Bitboard* attacBishop[M];
 	static int bishopShifts[M];
 
 	// kights
-	Bitboard attackKnight[M];
+	static Bitboard attackKnight[M];
 
 	// king
-	Bitboard attackKing[M];
+	static Bitboard attackKing[M];
 
 	// pawn
-	Bitboard attackPawnW[M];
-	Bitboard pawnMovesW[M];
-	Bitboard attackPawnB[M];
-	Bitboard pawnMovesB[M];
+	static Bitboard attackPawnW[M];
+	static Bitboard pawnMovesW[M];
+	static Bitboard attackPawnB[M];
+	static Bitboard pawnMovesB[M];
 	
-	static void init();
+	
 
 private:
-	
+
+	void init();
 	
 	Bitboard reverseBits(Bitboard n);
 	
