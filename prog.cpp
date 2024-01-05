@@ -5,8 +5,6 @@
 #include <random>
 #include <cstdlib> 
 
-
-
 #include "variables.h"
 #include "GamePrepare.h"
 #include "Functions.h"
@@ -34,7 +32,9 @@ int main()
 	Bitboard bishop = A7; // pole na ktorej jest wieza
 	Bitboard rook=C3;
 	Bitboard knight = H8;
-	Bitboard king = H8;
+	Bitboard king = E3;
+	Bitboard pawn = H7;
+	Bitboard pawn2 = E7;
 	
 
 	printBoard(occupancy); // wyswietlanie planszy
@@ -60,40 +60,19 @@ int main()
 	int num5 = log2(king);
 	Bitboard att5 = prepare.attackKing[num5];
 	printBoard(att5);
+
+	// pawn moves
+	int num6 = log2(pawn);
+	Bitboard att6 = prepare.pawnMovesB[num6];
+	printBoard(att6);
+
+	// pawn attacks
+	int num7 = log2(pawn2);
+	Bitboard att7 = prepare.attackPawnW[num7];
+	printBoard(att7);
 }
 
 
-
-
-Bitboard* KnightAttack()
-{
-	Bitboard* attacks =  new Bitboard[M];
-	
-	
-	for (int i = 0; i < M; i++)
-	{
-		attacks[i] = 0;
-		if (i/8<=6 && i % 8 >= 2)
-			attacks[i] |= fields[i + 6];
-		if (i / 8 <= 5 && i%8>=1)
-			attacks[i] |= fields[i + 15];
-		if (i/8<=5 && i % 8 <= 6)
-			attacks[i] |= fields[i + 17];
-		if (i/8<=6 && i % 8 <=5)
-			attacks[i] |= fields[i + 10];
-		if (i/8 >=1 && i % 8 >= 2)
-			attacks[i] |= fields[i - 10];
-		if (i/8>=2 && i % 8 >= 1)
-			attacks[i] |= fields[i - 17];
-		if (i/8 >=2 && i % 8 <= 6)
-			attacks[i] |= fields[i -15];
-		if (i/8 >=1 && i % 8 <=5)
-			attacks[i] |= fields[i -6];
-
-	}
-	
-	return attacks;
-}
 
 
 

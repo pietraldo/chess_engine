@@ -32,6 +32,9 @@
 	 BishopAttacks();
 	 KnightAttacks();
 	 KingAttacks();
+	 PawnAttacks();
+
+	 PawnMoves();
  }
 
  Bitboard GamePrepare::rookMoveForPossition(Bitboard occupancy, int index)
@@ -285,6 +288,47 @@
 	 if(!read_magic_from_file)
 		writeNumbersToFile(path_name, magicRook);
 
+ }
+
+ void GamePrepare::PawnMoves()
+ {
+	 for (int i = 0; i < M; i++)
+	 {
+		 pawnMovesB[i] = 0;
+		 pawnMovesW[i] = 0;
+		 if ((int)(i / 8) == 1)
+			 pawnMovesW[i] |= fields[i + 16];
+		 if ((int)(i / 8) == 6)
+			 pawnMovesB[i] |= fields[i - 16];
+		 if (i / 8 >= 1 && i / 8 <= 6)
+		 {
+			pawnMovesB[i] |= fields[i - 8];
+			pawnMovesW[i] |= fields[i + 8];
+		 } 
+	 }
+ }
+
+ void GamePrepare::PawnAttacks()
+ {
+	 for (int i = 0; i < M; i++)
+	 {
+		 attackPawnW[i] = 0;
+		 attackPawnB[i] = 0;
+
+		 if (i >= 8 && i <= 55)
+		 {
+			 if (i % 8 >= 1)
+			 {
+				 attackPawnW[i] |= fields[i + 7];
+				 attackPawnB[i] |= fields[i - 9];
+			 }
+			 if (i % 8 <= 6)
+			 {
+				 attackPawnW[i] |= fields[i + 9];
+				 attackPawnB[i] |= fields[i - 7];
+			 }
+		 }
+	 }
  }
 
  Bitboard* GamePrepare::generateKeysBishop(int index)

@@ -31,8 +31,10 @@ public:
 	Bitboard attackKing[M];
 
 	// pawn
-	Bitboard attackPawn[M];
-	Bitboard pawnMoves[M];
+	Bitboard attackPawnW[M];
+	Bitboard pawnMovesW[M];
+	Bitboard attackPawnB[M];
+	Bitboard pawnMovesB[M];
 	
 	static void init();
 
