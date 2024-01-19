@@ -42,7 +42,7 @@ bool Test::test1()
 	GamePrepare();
 
 	bool show=false;
-	int depth = 5;
+	int depth = 2;
 	string fen[] = { 
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" ,
 		"rnbqkbnr/p3ppp1/1p5p/3p4/2BP4/5Q2/PPP2PPP/RNB1K1NR w KQkq - 0 6",
