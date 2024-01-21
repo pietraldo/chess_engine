@@ -38,20 +38,6 @@ public:
 	static Board* boardFromFEN(string fen);
 
 private:
-	static void makeMoveNoCapture(Board&, Move&);
-	static void makeMoveCapture(Board&, Move&);
-	static void makeMoveOnPassant(Board&, Move&);
-	static void makeMovePromotion(Board&, Move&);
-	static void makeMoveCastle(Board&, Move&);
-	static void makeMovePromotionCapture(Board&, Move&);
-
-	static void unmakeMoveNoCapture(Board&, Move&);
-	static void unmakeMoveCapture(Board&, Move&);
-	static void unmakeMoveOnPassant(Board&, Move&);
-	static void unmakeMovePromotion(Board&, Move&);
-	static void unmakeMoveCastle(Board&, Move&);
-	static void unmakeMovePromotionCapture(Board&, Move&);
-
 	// if move is king move or rook move it changes castle rights in board
 	static void changeCastleRights(Board&, Move&);
 	// it changes field of on passant

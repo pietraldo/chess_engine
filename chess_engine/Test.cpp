@@ -42,7 +42,7 @@ bool Test::test1()
 	GamePrepare();
 
 	bool show=false;
-	int depth = 2;
+	int depth = 4;
 	string fen[] = { 
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" ,
 		"rnbqkbnr/p3ppp1/1p5p/3p4/2BP4/5Q2/PPP2PPP/RNB1K1NR w KQkq - 0 6",
@@ -55,6 +55,7 @@ bool Test::test1()
 		"r3k2r/p1pppppp/2np1bn1/3P4/1Q1q3P/1NB2N2/PPP2BPP/R3K2R w KQkq - 0 1",
 		"8/1P1k4/8/3K4/8/7p/8/8 w - - 0 1"
 	};
+	
 	long sumN = 0;
 	double sumT = 0;
 	for (int i = 0; i < size(fen); i++)

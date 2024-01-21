@@ -218,10 +218,15 @@ int Game::generation(Board* board, Color color,int max_depth, int depth)
 
 		if (depth == 1)
 		{
-			char a= (char)(m.from % 8 + 97);
-			int b = (int)(m.from / 8) + 1;
-			char c = (char)(m.to % 8 + 97);
-			int d = (int)(m.to / 8) + 1;
+			int one = bitScanForward(m.move);
+			int two = bitScanForward(m.move^fields[one]);
+			if (fields[one] & ((board->whoToMove == WHITE) ? board->figure[whiteOccupancy] : board->figure[blackOccupancy]))
+				swap(two, one);
+			//printBitboard(m.move);
+			char a= (char)(two % 8 + 97);
+			int b = (int)(two / 8) + 1;
+			char c = (char)(one % 8 + 97);
+			int d = (int)(one / 8) + 1;
 			int e = num2;
 			output+=a+to_string(b)+c+to_string(d)+": "+to_string(e)+"\n";
 			//cout<<(char)(m.from % 8 + 97) << (int)(m.from / 8) + 1  << (char)(m.to % 8 + 97) << (int)(m.to / 8) + 1<<": "<<num2 << endl;
@@ -235,55 +240,7 @@ int Game::generation(Board* board, Color color,int max_depth, int depth)
 
 void Game::moveGeneration(Board board, Color color, list<Move>& legalMoves)
 {
-	/*list<Move> history = list<Move>();
-	while (1)
-	{
-		list<Move> moves = list<Move>();
-
-		moveGenerationKingWhite(board, moves, board.figure[whiteKing]);
-		moveGenerationRookWhite(board, moves, board.figure[whiteRook]);
-		moveGenerationBishopWhite(board, moves, board.figure[whiteBishop]);
-		moveGenerationPawnWhite(board, moves, board.figure[whitePawn]);
-		moveGenerationKnightWhite(board, moves, board.figure[whiteKnight]);
-		moveGenerationRookWhite(board, moves, board.figure[whiteQueen]);
-		moveGenerationBishopWhite(board, moves, board.figure[whiteQueen]);
-
-		int i = 0;
-		for (const auto& m : moves)
-		{
-			cout << setw(3) << ++i << " " << "Piece: " << m.type_piece << ", move type: " << m.moveType << ", " << (char)(m.from % 8 + 65) << (int)(m.from / 8) + 1 << " -> " << (char)(m.to % 8 + 65) << (int)(m.to / 8) + 1 << endl;
-		}
-
-		cout << "Ruchow lacznie: " << moves.size() << endl;
-		cout << "Castle rights white: " << board.WSC << " " << board.WLC << endl;
-		printBoard(board);
-
-		int number;
-		
-		cin >>number;
-		if (number != 0)
-		{
-			for (auto& m : moves)
-			{
-				--number;
-				if (number == 0)
-				{
-					makeMove(board, m);
-					history.push_back(m);
-				}
-				
-			}
-		}
-		else
-		{
-			if (history.empty()) continue;
-			Move m = history.back();
-			unmakeMove(board, m);
-			history.pop_back();
-		}
-			
-	}*/
-
+	
 	list<Move> moves = list<Move>();
 	
 	if (color==WHITE)
@@ -362,7 +319,7 @@ void Game::test(Board& board)
 		int i = 0;
 		for (const auto& m : moves)
 		{
-			cout << setw(3) << ++i << " " << "Piece: " << m.type_piece << ", move type: " << m.moveType << ", " << (char)(m.from % 8 + 65) << (int)(m.from / 8) + 1 << " -> " << (char)(m.to % 8 + 65) << (int)(m.to / 8) + 1 << endl;
+			//cout << setw(3) << ++i << " " << "Piece: " << m.type_piece << ", move type: " << m.moveType << ", " << (char)(m.from % 8 + 65) << (int)(m.from / 8) + 1 << " -> " << (char)(m.to % 8 + 65) << (int)(m.to / 8) + 1 << endl;
 		}
 
 		cout << "Ruchow lacznie: " << moves.size() << endl;
@@ -419,29 +376,27 @@ void Game::moveGenerationRookWhite(Board& board, list<Move>& moves, Bitboard fig
 			int index = bitScanForward(attackRook);
 
 			Move m;
-			m.from = rookIndex;
-			m.to = index;
+			
+			m.move = fields[rookIndex]|fields[index];
 			m.type_piece = (board.figure[whiteRook] & figure) ? whiteRook : whiteQueen;
 			m.longCastle = board.WLC;
 			m.shortCastle = board.WSC;
-			m.onPassant = board.onPassantField;
-			m.capture_type_piece = -1;
+			m.enPassant = board.onPassantField;
+
+			
 			if (fields[index] & board.figure[blackOccupancy]) //capture move
 			{
-				m.moveType = CAPTURE;
+				m.move2 = fields[index];
 				for (int i = 0; i < 6; i++)
 				{
 					if (fields[index] & board.figure[i + 6])
 					{
-						m.capture_type_piece = i + 6;
+						m.type_piece2 = i + 6;
 						break;
 					}
 				}
 			}
-			else
-			{
-				m.moveType = NO_CAPTURE;
-			}
+			
 			moves.push_back(m);
 			// substracting added move
 			attackRook &= attackRook - 1;
@@ -473,30 +428,26 @@ void Game::moveGenerationBishopWhite(Board& board, list<Move>& moves, Bitboard f
 			int index = bitScanForward(attackBishop);
 
 			Move m;
-			m.from = bishopIndex;
-			m.to = index;
-			m.type_piece = (board.figure[whiteBishop] & figure) ?whiteBishop:whiteQueen ;
+
+			m.move = fields[bishopIndex] | fields[index];
+			m.type_piece = (board.figure[whiteBishop] & figure) ? whiteBishop : whiteQueen;
 			m.longCastle = board.WLC;
 			m.shortCastle = board.WSC;
-			m.onPassant = board.onPassantField;
-			m.capture_type_piece = -1;
+			m.enPassant = board.onPassantField;
+
 			if (fields[index] & board.figure[blackOccupancy]) //capture move
 			{
-				m.moveType = CAPTURE;
+				m.move2 = fields[index];
 				bool was = false;
 				for (int i = 0; i < 6; i++)
 				{
 					if (fields[index] & board.figure[i + 6])
 					{
-						m.capture_type_piece = i + 6;
+						m.type_piece2 = i + 6;
 						break;
 					}
 					
 				}
-			}
-			else
-			{
-				m.moveType = NO_CAPTURE;
 			}
 			
 			moves.push_back(m);
@@ -526,16 +477,17 @@ void Game::moveGenerationPawnWhite(Board& board, list<Move>& moves, Bitboard fig
 		else if ((log2(movePawn & occ) - pawnIndex) >= 8)
 			movePawn = 0;
 		
+		// enPassant capture
 		if (fields[board.onPassantField] & attackPawn)
 		{
 			Move m;
-			m.from = pawnIndex;
-			m.to = board.onPassantField;
+			m.move = fields[pawnIndex] | fields[board.onPassantField];
 			m.type_piece = whitePawn;
+			m.move2 = fields[board.onPassantField - 8];
+			m.type_piece2 = blackPawn;
 			m.longCastle = board.WLC;
 			m.shortCastle = board.WSC;
-			m.moveType = ON_PASSANT;
-			m.onPassant = board.onPassantField;
+			m.enPassant = board.onPassantField;
 			moves.push_back(m);
 		}
 
@@ -551,38 +503,37 @@ void Game::moveGenerationPawnWhite(Board& board, list<Move>& moves, Bitboard fig
 			int index = bitScanForward(attackPawn);
 
 			Move m;
-			m.from = pawnIndex;
-			m.to = index;
+			m.move = fields[pawnIndex] | fields[index];
 			m.type_piece = whitePawn;
 			m.longCastle = board.WLC;
 			m.shortCastle = board.WSC;
-			m.moveType = CAPTURE;
-			m.onPassant = board.onPassantField;
+			m.enPassant = board.onPassantField;
 			
 			
 			for (int i = 0; i < 6; i++)
 			{
 				if (fields[index] & board.figure[i + 6])
 				{
-					m.capture_type_piece = i + 6;
+					m.type_piece2 = i + 6;
+					m.move2 = fields[index];
 					break;
 				}
 			}
 			if (index >= 56)
 			{
-				m.moveType = PROMOTIONCAPTURE;
-				m.type_piece = whiteQueen;
+				m.move = fields[pawnIndex];
+				m.move3 = fields[index];
+				m.type_piece3 = whiteQueen;
 				moves.push_back(m);
-				m.type_piece = whiteRook;
+				m.type_piece3 = whiteRook;
 				moves.push_back(m);
-				m.type_piece = whiteBishop;
+				m.type_piece3 = whiteBishop;
 				moves.push_back(m);
-				m.type_piece = whiteKnight;
+				m.type_piece3 = whiteKnight;
 				moves.push_back(m);
 			}
 			else
 			{
-				m.moveType = CAPTURE;
 				moves.push_back(m);
 			}
 				
@@ -597,36 +548,32 @@ void Game::moveGenerationPawnWhite(Board& board, list<Move>& moves, Bitboard fig
 			int index = bitScanForward(movePawn);
 
 			Move m;
-			m.from = pawnIndex;
-			m.to = index;
+			m.move = fields[index] | fields[pawnIndex];
 			m.type_piece = whitePawn;
 			m.longCastle = board.WLC;
 			m.shortCastle = board.WSC;
-			m.onPassant = board.onPassantField;
+			m.enPassant = board.onPassantField;
 			if (index >= 56)
 			{
-				m.moveType = PROMOTION;
-				m.capture_type_piece = whiteQueen;
+				m.move = fields[pawnIndex];
+				m.move3 = fields[index];
+				m.type_piece3 = whiteQueen;
 				moves.push_back(m);
-				m.capture_type_piece = whiteRook;
+				m.type_piece3 = whiteRook;
 				moves.push_back(m);
-				m.capture_type_piece = whiteBishop;
+				m.type_piece3 = whiteBishop;
 				moves.push_back(m);
-				m.capture_type_piece = whiteKnight;
+				m.type_piece3 = whiteKnight;
 				moves.push_back(m);
 			}
 			else
 			{
-				m.moveType = NO_CAPTURE;
 				moves.push_back(m);
 			}
-				
-
-			
+						
 			// substracting added move
 			movePawn &= movePawn - 1;
-		}
-		
+		}	
 
 		// substracting rook which moves was generatend
 		figure &= figure - 1;
@@ -654,28 +601,24 @@ void Game::moveGenerationKnightWhite(Board& board, list<Move>& moves, Bitboard f
 			int index = bitScanForward(attackKnight);
 
 			Move m;
-			m.from = knightIndex;
-			m.to = index;
+			m.move = fields[index] | fields[knightIndex];
 			m.type_piece = whiteKnight;
 			m.longCastle = board.WLC;
 			m.shortCastle = board.WSC;
-			m.onPassant = board.onPassantField;
+			m.enPassant = board.onPassantField;
 			if (fields[index] & board.figure[blackOccupancy]) //capture move
 			{
-				m.moveType = CAPTURE;
+				m.move2 = fields[index];
 				for (int i = 0; i < 6; i++)
 				{
 					if (fields[index] & board.figure[i + 6])
 					{
-						m.capture_type_piece = i + 6;
+						m.type_piece2 = i + 6;
 						break;
 					}
 				}
 			}
-			else
-			{
-				m.moveType = NO_CAPTURE;
-			}
+			
 			moves.push_back(m);
 			// substracting added move
 			attackKnight &= attackKnight - 1;
@@ -705,28 +648,24 @@ void Game::moveGenerationKingWhite(Board& board, list<Move>& moves, Bitboard fig
 		int index = bitScanForward(attackKing);
 
 		Move m;
-		m.from = kingIndex;
-		m.to = index;
+		m.move = fields[index] | fields[kingIndex];
 		m.type_piece = whiteKing;
 		m.longCastle = board.WLC;
 		m.shortCastle = board.WSC;
-		m.onPassant = board.onPassantField;
+		m.enPassant = board.onPassantField;
 		if (fields[index] & board.figure[blackOccupancy]) //capture move
 		{
-			m.moveType = CAPTURE;
+			m.move2 = fields[index];
 			for (int i = 0; i < 6; i++)
 			{
 				if (fields[index] & board.figure[i + 6])
 				{
-					m.capture_type_piece = i + 6;
+					m.type_piece2 = i + 6;
 					break;
 				}
 			}
 		}
-		else
-		{
-			m.moveType = NO_CAPTURE;
-		}
+		
 		moves.push_back(m);
 		// substracting added move
 		attackKing &= attackKing - 1;
@@ -735,27 +674,27 @@ void Game::moveGenerationKingWhite(Board& board, list<Move>& moves, Bitboard fig
 	if (board.WLC && isLegalCastleWhiteLong(board) && !((B1|C1|D1)&occ) && (board.figure[whiteRook] & A1) && !isCheck(board, 4, WHITE))
 	{
 		Move m;
-		m.from = kingIndex;
-		m.to = 2;
-		m.type_piece = 0;
-		m.capture_type_piece = 3;
+		m.move = fields[kingIndex] | C1;
+		m.type_piece = whiteKing;
+		m.move2 = A1 | D1;
+		m.type_piece2 = whiteRook;
 		m.longCastle = board.WLC;
 		m.shortCastle = board.WSC;
-		m.onPassant = board.onPassantField;
-		m.moveType = CASTLE;
+		m.enPassant = board.onPassantField;
+
 		moves.push_back(m);
 	}
 	if (board.WSC && isLegalCastleWhiteShort(board) && !((G1 | F1) & occ) && (board.figure[whiteRook] & H1) && !isCheck(board, 4, WHITE))
 	{
 		Move m;
-		m.from = kingIndex;
-		m.to = 6;
-		m.type_piece = 7;
-		m.capture_type_piece = 5;
+		m.move = fields[kingIndex] | G1;
+		m.type_piece = whiteKing;
+		m.move2 = H1 | F1;
+		m.type_piece2 = whiteRook;
 		m.longCastle = board.WLC;
-		m.onPassant = board.onPassantField;
+		m.enPassant = board.onPassantField;
 		m.shortCastle = board.WSC;
-		m.moveType = CASTLE;
+		
 		moves.push_back(m);
 	}
 }
@@ -782,29 +721,25 @@ void Game::moveGenerationRookBlack(Board& board, list<Move>& moves, Bitboard fig
 			int index = bitScanForward(attackRook);
 
 			Move m;
-			m.from = rookIndex;
-			m.to = index;
+			m.move = fields[rookIndex] | fields[index];
 			m.type_piece = (board.figure[blackRook] & figure) ? blackRook : blackQueen;
 			m.longCastle = board.BLC;
 			m.shortCastle = board.BSC;
-			m.onPassant = board.onPassantField;
-			m.capture_type_piece = -1;
+			m.enPassant = board.onPassantField;
+			
 			if (fields[index] & board.figure[whiteOccupancy]) //capture move
 			{
-				m.moveType = CAPTURE;
+				m.move2 = fields[index];
 				for (int i = 0; i < 6; i++)
 				{
 					if (fields[index] & board.figure[i ])
 					{
-						m.capture_type_piece = i ;
+						m.type_piece2 = i ;
 						break;
 					}
 				}
 			}
-			else
-			{
-				m.moveType = NO_CAPTURE;
-			}
+			
 			moves.push_back(m);
 			// substracting added move
 			attackRook &= attackRook - 1;
@@ -836,28 +771,23 @@ void Game::moveGenerationBishopBlack(Board& board, list<Move>& moves, Bitboard f
 			int index = bitScanForward(attackBishop);
 
 			Move m;
-			m.from = bishopIndex;
-			m.to = index;
+			m.move = fields[bishopIndex] | fields[index];
 			m.type_piece = (board.figure[blackBishop] & figure) ? blackBishop : blackQueen;
 			m.longCastle = board.BLC;
 			m.shortCastle = board.BSC;
-			m.onPassant = board.onPassantField;
-			m.capture_type_piece = -1;
+			m.enPassant = board.onPassantField;
+			
 			if (fields[index] & board.figure[whiteOccupancy]) //capture move
 			{
-				m.moveType = CAPTURE;
+				m.move2 = fields[index];
 				for (int i = 0; i < 6; i++)
 				{
 					if (fields[index] & board.figure[i ])
 					{
-						m.capture_type_piece = i ;
+						m.type_piece2 = i ;
 						break;
 					}
 				}
-			}
-			else
-			{
-				m.moveType = NO_CAPTURE;
 			}
 			moves.push_back(m);
 			// substracting added move
@@ -893,13 +823,13 @@ void Game::moveGenerationPawnBlack(Board& board, list<Move>& moves, Bitboard fig
 		if (fields[board.onPassantField] & attackPawn)
 		{
 			Move m;
-			m.from = pawnIndex;
-			m.to = board.onPassantField;
+			m.move = fields[pawnIndex] | fields[board.onPassantField];
 			m.type_piece = blackPawn;
+			m.move2 = fields[board.onPassantField + 8];
+			m.type_piece2 = whitePawn;
 			m.longCastle = board.BLC;
 			m.shortCastle = board.BSC;
-			m.moveType = ON_PASSANT;
-			m.onPassant = board.onPassantField;
+			m.enPassant = board.onPassantField;
 			moves.push_back(m);
 		}
 
@@ -915,38 +845,37 @@ void Game::moveGenerationPawnBlack(Board& board, list<Move>& moves, Bitboard fig
 			int index = bitScanForward(attackPawn);
 
 			Move m;
-			m.from = pawnIndex;
-			m.to = index;
+			m.move = fields[pawnIndex] | fields[index];
 			m.type_piece = blackPawn;
 			m.longCastle = board.BLC;
 			m.shortCastle = board.BSC;
-			m.moveType = CAPTURE;
-			m.onPassant = board.onPassantField;
+			m.enPassant = board.onPassantField;
 
 
 			for (int i = 0; i < 6; i++)
 			{
 				if (fields[index] & board.figure[i])
 				{
-					m.capture_type_piece = i ;
+					m.type_piece2 = i ;
+					m.move2 = fields[index];
 					break;
 				}
 			}
 			if (index <=7)
 			{
-				m.moveType = PROMOTIONCAPTURE;
-				m.type_piece = blackQueen;
+				m.move = fields[pawnIndex];
+				m.move3 = fields[index];
+				m.type_piece3 = blackQueen;
 				moves.push_back(m);
-				m.type_piece = blackRook;
+				m.type_piece3 = blackRook;
 				moves.push_back(m);
-				m.type_piece = blackBishop;
+				m.type_piece3 = blackBishop;
 				moves.push_back(m);
-				m.type_piece = blackKnight;
+				m.type_piece3 = blackKnight;
 				moves.push_back(m);
 			}
 			else
 			{
-				m.moveType = CAPTURE;
 				moves.push_back(m);
 			}
 
@@ -961,27 +890,26 @@ void Game::moveGenerationPawnBlack(Board& board, list<Move>& moves, Bitboard fig
 			int index = bitScanForward(movePawn);
 
 			Move m;
-			m.from = pawnIndex;
-			m.to = index;
+			m.move = fields[pawnIndex] | fields[index];
 			m.type_piece = blackPawn;
 			m.longCastle = board.BLC;
 			m.shortCastle = board.BSC;
-			m.onPassant = board.onPassantField;
+			m.enPassant = board.onPassantField;
 			if (index <=7)
 			{
-				m.moveType = PROMOTION;
-				m.capture_type_piece = blackQueen;
+				m.move = fields[pawnIndex];
+				m.move3 = fields[index];
+				m.type_piece3 = blackQueen;
 				moves.push_back(m);
-				m.capture_type_piece = blackRook;
+				m.type_piece3 = blackRook;
 				moves.push_back(m);
-				m.capture_type_piece = blackBishop;
+				m.type_piece3 = blackBishop;
 				moves.push_back(m);
-				m.capture_type_piece = blackKnight;
+				m.type_piece3 = blackKnight;
 				moves.push_back(m);
 			}
 			else
 			{
-				m.moveType = NO_CAPTURE;
 				moves.push_back(m);
 			}
 
@@ -1018,29 +946,25 @@ void Game::moveGenerationKnightBlack(Board& board, list<Move>& moves, Bitboard f
 			int index = bitScanForward(attackKnight);
 
 			Move m;
-			m.from = knightIndex;
-			m.to = index;
+			m.move = fields[index] | fields[knightIndex];
 			m.type_piece = blackKnight;
 			m.longCastle = board.BLC;
 			m.shortCastle = board.BSC;
-			m.onPassant = board.onPassantField;
-			m.capture_type_piece = -1;
+			m.enPassant = board.onPassantField;
+			
 			if (fields[index] & board.figure[whiteOccupancy]) //capture move
 			{
-				m.moveType = CAPTURE;
+				m.move2 = fields[index];
 				for (int i = 0; i < 6; i++)
 				{
 					if (fields[index] & board.figure[i])
 					{
-						m.capture_type_piece = i;
+						m.type_piece2 = i;
 						break;
 					}
 				}
 			}
-			else
-			{
-				m.moveType = NO_CAPTURE;
-			}
+			
 			moves.push_back(m);
 			// substracting added move
 			attackKnight &= attackKnight - 1;
@@ -1070,29 +994,25 @@ void Game::moveGenerationKingBlack(Board& board, list<Move>& moves, Bitboard fig
 		int index = bitScanForward(attackKing);
 
 		Move m;
-		m.from = kingIndex;
-		m.to = index;
+		m.move = fields[index] | fields[kingIndex];
 		m.type_piece = blackKing;
 		m.longCastle = board.BLC;
 		m.shortCastle = board.BSC;
-		m.onPassant = board.onPassantField;
-		m.capture_type_piece = -499999;
+		m.enPassant = board.onPassantField;
+		
 		if (fields[index] & board.figure[whiteOccupancy]) //capture move
 		{
-			m.moveType = CAPTURE;
+			m.move2 = fields[index];
 			for (int i = 0; i < 6; i++)
 			{
 				if (fields[index] & board.figure[i])
 				{
-					m.capture_type_piece = i;
+					m.type_piece2 = i;
 					break;
 				}
 			}
 		}
-		else
-		{
-			m.moveType = NO_CAPTURE;
-		}
+		
 		moves.push_back(m);
 		// substracting added move
 		attackKing &= attackKing - 1;
@@ -1101,27 +1021,28 @@ void Game::moveGenerationKingBlack(Board& board, list<Move>& moves, Bitboard fig
 	if (board.BLC && isLegalCastleBlackLong(board) && !((B8 | C8 | D8) & occ) && (board.figure[blackRook]&A8) && !isCheck(board, 60, BLACK))
 	{
 		Move m;
-		m.from = kingIndex;
-		m.to = 58;
-		m.type_piece = 56;
-		m.capture_type_piece = 59;
+		m.move = fields[kingIndex] | C8;
+		m.type_piece = blackKing;
+		m.move2 = A8 | D8;
+		m.type_piece2 = blackRook;
+
 		m.longCastle = board.BLC;
 		m.shortCastle = board.BSC;
-		m.onPassant = board.onPassantField;
-		m.moveType = CASTLE;
+		m.enPassant = board.onPassantField;
+	
 		moves.push_back(m);
 	}
 	if (board.BSC && isLegalCastleBlackShort(board) && !((G8 | F8) & occ) && (board.figure[blackRook] & H8) && !isCheck(board,60,BLACK))
 	{
 		Move m;
-		m.from = kingIndex;
-		m.to = 62;
-		m.type_piece = 63;
-		m.capture_type_piece = 61;
+		m.move = fields[kingIndex] | G8;
+		m.type_piece = blackKing;
+		m.move2 = H8 | F8;
+		m.type_piece2 = blackRook;
 		m.longCastle = board.BLC;
-		m.onPassant = board.onPassantField;
+		m.enPassant = board.onPassantField;
 		m.shortCastle = board.BSC;
-		m.moveType = CASTLE;
+		
 		moves.push_back(m);
 	}
 }
@@ -1129,27 +1050,10 @@ void Game::moveGenerationKingBlack(Board& board, list<Move>& moves, Bitboard fig
 
 void Game::makeMove(Board& board, Move& move)
 {
-	switch (move.moveType)
-	{
-		case CAPTURE:
-			makeMoveCapture(board, move);
-		case NO_CAPTURE:
-			makeMoveNoCapture(board, move);
-			changeCastleRights(board, move);
-			break;
-		case ON_PASSANT:
-			makeMoveOnPassant(board, move);
-			break;
-		case CASTLE:
-			makeMoveCastle(board, move);
-			break;
-		case PROMOTION:
-			makeMovePromotion(board, move);
-			break;
-		case PROMOTIONCAPTURE:
-			makeMovePromotionCapture(board, move);
-			break;
-	}
+	board.figure[move.type_piece] ^= move.move;
+	board.figure[move.type_piece2] ^= move.move2;
+	board.figure[move.type_piece3] ^= move.move3;
+
 	changeOnPassantMove(board, move);
 
 	// TODO: make more efficient generating occupancy
@@ -1174,30 +1078,11 @@ void Game::unmakeMove(Board& board, Move& move)
 		board.BLC = move.longCastle;
 		board.BSC = move.shortCastle;
 	}
-	switch (move.moveType)
-	{
-	case CAPTURE:
-		unmakeMoveCapture(board, move);
-	case NO_CAPTURE:
-		unmakeMoveNoCapture(board, move);
-		break;
-	case ON_PASSANT:
-		unmakeMoveOnPassant(board, move);
-		break;
-	case CASTLE:
-		unmakeMoveCastle(board, move);
-		break;
-	case PROMOTION:
-		unmakeMovePromotion(board, move);
-		break;
-	case PROMOTIONCAPTURE:
-		unmakeMovePromotionCapture(board, move);
-		break;
-	}
-	changeOnPassantMove(board, move);
+	board.figure[move.type_piece] ^= move.move;
+	board.figure[move.type_piece2] ^= move.move2;
+	board.figure[move.type_piece3] ^= move.move3;
 
-	
-	board.onPassantField = move.onPassant;
+	board.onPassantField = move.enPassant;
 
 	// TODO: make more efficient generating occupancy
 	board.figure[whiteOccupancy] = 0;
@@ -1226,16 +1111,16 @@ void Game::changeCastleRights(Board& board, Move& move)
 	}
 	else if(move.type_piece==blackRook)
 	{
-		if (move.from == 56)
+		if (move.move&A8)
 			board.BLC = false;
-		else if (move.from == 63)
+		else if (move.move&H8)
 			board.BSC = false;
 	}
 	else if (move.type_piece == whiteRook)
 	{
-		if (move.from == 0)
+		if (move.move&A1)
 			board.WLC = false;
-		else if (move.from == 7)
+		else if (move.move&H8)
 			board.WSC = false;
 	}
 }
@@ -1245,147 +1130,14 @@ void Game::changeOnPassantMove(Board& board, Move& move)
 	board.onPassantField = 64;
 	if (move.type_piece == 0 || move.type_piece == 6)
 	{
-		
-		if (move.moveType == NO_CAPTURE)
+		int one = bitScanForward(move.move);
+		int two = bitScanForward(move.move^fields[one]);
+		//cout << one << " " << two << endl;
+		if (abs(one - two) == 16)
 		{
-			
-			int one = move.from;
-			int two = move.to;
-			//cout << one << " " << two << endl;
-			if (abs(one - two) == 16)
-			{
-				board.onPassantField = (one+two)/2;
-			}
+			board.onPassantField = (one+two)/2;
 		}
+		
 	}	
 }
 
-void Game::makeMoveNoCapture(Board& board, Move& move)
-{
-	board.figure[move.type_piece] ^= fields[move.from];
-	board.figure[move.type_piece] ^= fields[move.to];
-}
-
-void Game::makeMoveCapture(Board& board, Move& move)
-{
-	board.figure[move.capture_type_piece] ^= fields[move.to];
-}
-
-void Game::makeMoveOnPassant(Board& board, Move& move)
-{
-	makeMoveNoCapture(board, move);
-	if (move.type_piece == 0)
-	{
-		board.figure[blackPawn] ^= fields[move.to-8];
-	}
-	else
-	{
-		board.figure[whitePawn] ^= fields[move.to + 8];
-	}
-}
-
-void Game::makeMovePromotion(Board& board, Move& move)
-{
-	// pawn is vanishing
-	board.figure[move.type_piece] ^= fields[move.from];
-	// pawn is changing to figure 
-	board.figure[move.capture_type_piece] ^= fields[move.to];
-}
-
-void Game::makeMoveCastle(Board& board, Move& move)
-{
-	if (fields[move.from] & board.figure[whiteKing])
-	{
-		board.WLC = false;
-		board.WSC = false;
-		board.figure[whiteKing] ^= fields[move.from];
-		board.figure[whiteKing] ^= fields[move.to];
-		board.figure[whiteRook] ^= fields[move.type_piece];
-		board.figure[whiteRook] ^= fields[move.capture_type_piece];
-	}
-	else
-	{
-		board.BLC = false;
-		board.BSC = false;
-		board.figure[blackKing] ^= fields[move.from];
-		board.figure[blackKing] ^= fields[move.to];
-		board.figure[blackRook] ^= fields[move.type_piece];
-		board.figure[blackRook] ^= fields[move.capture_type_piece];
-	}
-}
-
-void Game::makeMovePromotionCapture(Board& board, Move& move)
-{
-	if(move.type_piece<6) // white
-		board.figure[whitePawn] ^= fields[move.from];
-	else
-		board.figure[blackPawn] ^= fields[move.from];
-	
-	board.figure[move.type_piece] ^= fields[move.to];
-	board.figure[move.capture_type_piece] ^= fields[move.to];
-}
-
-void Game::unmakeMoveNoCapture(Board& board, Move& move)
-{
-	board.figure[move.type_piece] ^= fields[move.from];
-	board.figure[move.type_piece] ^= fields[move.to];
-}
-
-void Game::unmakeMoveCapture(Board& board, Move& move)
-{
-	board.figure[move.capture_type_piece] ^= fields[move.to];
-}
-
-void Game::unmakeMoveOnPassant(Board& board, Move& move)
-{
-	makeMoveNoCapture(board, move);
-	if (move.type_piece == 0)
-	{
-		board.figure[blackPawn] ^= fields[move.to - 8];
-	}
-	else
-	{
-		board.figure[whitePawn] ^= fields[move.to + 8];
-	}
-}
-
-void Game::unmakeMovePromotion(Board& board, Move& move)
-{
-	// pawn is vanishing
-	board.figure[move.type_piece] ^= fields[move.from];
-	// pawn is changing to figure 
-	board.figure[move.capture_type_piece] ^= fields[move.to];
-}
-
-void Game::unmakeMoveCastle(Board& board, Move& move)
-{
-	if (fields[move.to] & board.figure[whiteKing])
-	{
-		board.WLC = move.longCastle;
-		board.WSC = move.shortCastle;
-		board.figure[whiteKing] ^= fields[move.from];
-		board.figure[whiteKing] ^= fields[move.to];
-		board.figure[whiteRook] ^= fields[move.type_piece];
-		board.figure[whiteRook] ^= fields[move.capture_type_piece];
-	}
-	else
-	{
-		board.BLC = move.longCastle;
-		board.BSC = move.shortCastle;
-		board.figure[blackKing] ^= fields[move.from];
-		board.figure[blackKing] ^= fields[move.to];
-		board.figure[blackRook] ^= fields[move.type_piece];
-		board.figure[blackRook] ^= fields[move.capture_type_piece];
-	}
-}
-
-void Game::unmakeMovePromotionCapture(Board& board, Move& move)
-{
-	if (move.type_piece < 6) // white
-		board.figure[whitePawn] ^= fields[move.from];
-	else
-		board.figure[blackPawn] ^= fields[move.from];
-
-	board.figure[move.type_piece] ^= fields[move.to];
-	board.figure[move.capture_type_piece] ^= fields[move.to];
-}

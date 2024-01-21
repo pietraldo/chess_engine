@@ -26,53 +26,20 @@ enum MoveType {CAPTURE, NO_CAPTURE, PROMOTION, ON_PASSANT,CASTLE, PROMOTIONCAPTU
 enum BoardArr {whitePawn, whiteRook, whiteKnight, whiteBishop, whiteQueen, whiteKing, blackPawn, blackRook, blackKnight, blackBishop, blackQueen, blackKing, whiteOccupancy, blackOccupancy};
 
 
-/*
-Move structure
-
-type:
-	CAPTURE
-		from: from which field 
-		to: to which field
-		type_piece: what type of piece is moving
-		capture_type_piece: what type of piece is captured
-	NO_CAPTURE
-		from: from which field 
-		to: to which field
-		type_piece: what type of piece is moving
-		capture_type_piece: ---
-	PROMOTION
-		from: from which field 
-		to: to which field
-		type_piece: what type of piece is moving
-		capture_type_piece: what type of piece is promoting to
-	CASTLE
-		from: king start field 
-		to: king end field
-		type_piece: rook start field
-		capture_type_piece: rook end fied
-	ON_PASSANT
-		from: from which field 
-		to: to which field
-		type_piece: what type of piece is moving
-		capture_type_piece: what type of piece is captured
-	PROMOTIONCAPTURE
-		from: from which field 
-		to: to which field
-		type_piece: what type of piece is promoting to
-		capture_type_piece: what type of piece is captured
 
 
-*/
+
 typedef struct Move
 {
-	MoveType moveType;
-	int from; // number of filed from which piece is moving
-	int to; // number of filed where piece is moving
-	int type_piece; // index of Bitboard - what type is this figure
-	int capture_type_piece; // index of Bitboard on which is this figure
-	bool shortCastle; // right to castle before this move
+	Bitboard move=0; // bitboard two do xor operation on figrue[type_piece]
+	int type_piece=0; // index of Bitboard - what type is this figure
+	Bitboard move2=0; // bitboard two do xor operation on figrue[type_piece]
+	int type_piece2=0; // index of Bitboard - what type is this figure
+	Bitboard move3=0; // bitboard two do xor operation on figrue[type_piece]
+	int type_piece3=0; // index of Bitboard - what type is this figure
+	bool shortCastle;
 	bool longCastle;
-	int onPassant; // index of field, during move, to be abale to unmake move
+	int enPassant;
 };
 
 extern Bitboard empty;
