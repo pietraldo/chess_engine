@@ -6,6 +6,7 @@
 #include <chrono>
 
 
+using namespace std;
 using namespace std::chrono;
 
 string formatWithDots(int number) {
@@ -39,11 +40,9 @@ void printColoredResult(const std::string& result) {
 
 bool Test::test1()
 {
-	GamePrepare();
-
 	bool show=false;
-	int depth = 5;
-	string fen[] = { 
+	int depth = 4;
+	/*string fen[] = { 
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" ,
 		"rnbqkbnr/p3ppp1/1p5p/3p4/2BP4/5Q2/PPP2PPP/RNB1K1NR w KQkq - 0 6",
 		"rnbqkbnr/pPpppp1p/8/8/8/8/P1pPP2P/RNBQKBNR w KQkq - 0 1",
@@ -54,11 +53,11 @@ bool Test::test1()
 		"r3k2r/p1pppppp/2np1bn1/3P4/1Q1q3P/1NB2N2/PPP2BPP/R3K2R b KQkq - 0 1",
 		"r3k2r/p1pppppp/2np1bn1/3P4/1Q1q3P/1NB2N2/PPP2BPP/R3K2R w KQkq - 0 1",
 		"8/1P1k4/8/3K4/8/7p/8/8 w - - 0 1"
-	};
-	/*string fen[] = { 
-		"8/6p1/8/5P2/8/8/8/K1k5 b - - 0 1" 
-		
 	};*/
+	string fen[] = { 
+		"r3k3/1p6/8/8/8/8/1P6/4K2R b Kq - 0 1" 
+		
+	};
 	
 	long sumN = 0;
 	double sumT = 0;
@@ -70,6 +69,7 @@ bool Test::test1()
 		string stockfish = ReadyChessEngine::GiveAnswer(("position fen " + fen[i] + "\ngo perft " + to_string(depth) + "\n\quit\n").c_str());
 
 		Board* board = Game::boardFromFEN(fen[i]);
+		
 		Game::output = "";
 		auto start = high_resolution_clock::now();
 
@@ -80,7 +80,7 @@ bool Test::test1()
 		double seconds = (double)duration_cast<microseconds>(stop - start).count()/1000000;
 
 		string myEngine = Game::output;
-		string stockfish_nodes=compareMoveGeneration(stockfish, myEngine, false);
+		string stockfish_nodes=compareMoveGeneration(stockfish, myEngine, true);
 
 		cout << "Nodes: " << formatWithDots(nodes) << endl;
 		cout << "Seconds: " << seconds << endl;
@@ -100,7 +100,78 @@ bool Test::test1()
 
 Test::Test()
 {
+	GamePrepare();
 	test1();
+	test2();
+}
+
+
+int bitScanForward2(Bitboard bb)
+{
+	unsigned long index;
+	_BitScanForward64(&index, bb);
+	return index;
+}
+bool Test::test2()
+{
+	Color color = WHITE;
+	Board* board = Game::boardFromFEN("r3k3/1p6/8/8/8/8/1P6/4K2R w KAhq - 0 1");
+	list<Move> history = list<Move>();
+	while (1)
+	{
+		list<Move> moves = list<Move>();
+
+		
+		Game::moveGeneration2(*board,color, moves);
+		color = toggleColor(color);
+		
+		int i = 0;
+		for (const auto& m : moves)
+		{
+			int one = bitScanForward2(m.move);
+			int two = bitScanForward2(m.move ^ fields[one]);
+			Bitboard aa = ((board->whoToMove == WHITE) ? board->occupancy[WHITE] : board->occupancy[BLACK]);
+
+			if (fields[one] & aa)
+				swap(two, one);
+			//printBitboard(m.move);
+			char a = (char)(two % 8 + 97);
+			int b = (int)(two / 8) + 1;
+			char c = (char)(one % 8 + 97);
+			int d = (int)(one / 8) + 1;
+			cout<<++i<<". " << a + to_string(b) + c + to_string(d)<<endl;
+		}
+
+		cout << "Ruchow lacznie: " << moves.size() << endl;
+		cout << "Castle rights white: " << board->WSC << " " << board->WLC << endl;
+		cout << "Castle rights black: " << board->BSC << " " << board->BLC << endl;
+		printBoard(*board);
+
+		int number;
+
+		cin >> number;
+		if (number != 0)
+		{
+			for (auto& m : moves)
+			{
+				--number;
+				if (number == 0)
+				{
+					Game::makeMove(*board, m);
+					history.push_back(m);
+				}
+
+			}
+		}
+		else
+		{
+			if (history.empty()) continue;
+			Move m = history.back();
+			Game::unmakeMove(*board, m);
+			history.pop_back();
+		}
+
+	}
 }
 
 

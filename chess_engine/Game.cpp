@@ -31,7 +31,6 @@ bool Game::isCheck(Board board, int kingField, Color kingColor)
 	return false;
 }
 
-
 Bitboard Game::attackRookf(Board& board, int index, Color color)
 {
 	Bitboard occ = board.occupancy[WHITE] | board.occupancy[BLACK];
@@ -89,6 +88,8 @@ Bitboard Game::attackPawnf(Board& board, int index, Color color)
 void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 {
 	Bitboard figures = board.figure[color][PAWN];
+	Color opponent_color = toggleColor(color);
+
 	while (figures)
 	{
 		int index_figure = bitScanForward(figures);
@@ -98,7 +99,7 @@ void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 
 		// delete if is obsticle before pawn
 		movePawn -= movePawn & (board.occupancy[WHITE] | board.occupancy[BLACK]);
-		// delete  move of two fields because on first is obsticle
+		// delete move of two fields because on first is obsticle
 		if (abs(index_figure - log2(movePawn)) == 16)
 			movePawn = 0;
 
@@ -109,17 +110,16 @@ void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 			Move m;
 			m.move = fields[index_figure] | fields[board.onPassantField];
 			m.type_piece = color * P + PAWN;
+			m.type_piece2 = opponent_color * P + PAWN;
 			if (color == WHITE)
 			{
 				m.move2 = fields[board.onPassantField - 8];
-				m.type_piece2 = BLACK * P + PAWN;
 				m.longCastle = board.WLC;
 				m.shortCastle = board.WSC;
 			}
 			else
 			{
 				m.move2 = fields[board.onPassantField + 8];
-				m.type_piece2 = WHITE * P + PAWN;
 				m.longCastle = board.BLC;
 				m.shortCastle = board.BSC;
 			}
@@ -310,6 +310,7 @@ void Game::generateMoves(Board& board, Color color, Figure figure_type, list<Mov
 
 			m.move = fields[index_attack] | fields[index_figure];
 			m.type_piece = color * P + figure_type;
+			// TODO: change this below because it might be wrong
 			m.longCastle = board.WLC;
 			m.shortCastle = board.WSC;
 			m.enPassant = board.onPassantField;
@@ -547,54 +548,34 @@ int Game::generation(Board* board, Color color,int max_depth, int depth)
 	return num;
 }
 
+
+// returns list of legal moves in given position for the color
 void Game::moveGeneration2(Board board, Color color, list<Move>& legalMoves)
 {
-	//printBoard(board);
 	list<Move> moves = list<Move>();
 
+	// generating moves (not checking if move is legal)
 	vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN, KING };
 	for (auto figure : figures) {
 		generateMoves(board, color,figure,moves);
 	}
 	
-
 	addCastleMove(board, color, moves);
 	addPawnMoves(board,color,moves);
 
-	// checking is move is legal
-	//TODO:change this 
-	if (color == WHITE)
+	// checking is move is legal 
+	// (makes move, checks if there is a check, unmakes move, adds or not to legal moves)
+	while (!moves.empty())
 	{
-		while (!moves.empty())
-		{
-			Move mm = moves.front();
-			moves.pop_front();
+		Move mm = moves.front();
+		moves.pop_front();
 
-			makeMove(board, mm);
+		makeMove(board, mm);
 
+		if (!isCheck(board, log2(board.figure[color][KING]), color))
+			legalMoves.push_back(mm);
 
-			if (!isCheck(board, log2(board.figure[WHITE][KING]), WHITE))
-				legalMoves.push_back(mm);
-
-			unmakeMove(board, mm);
-		}
-	}
-	else
-	{
-		while (!moves.empty())
-		{
-			Move mm = moves.front();
-			moves.pop_front();
-
-			//printBoard(board);cout << "a";
-			//cout  << (char)(mm.from % 8 + 65) << (int)(mm.from / 8) + 1 << " -> " << (char)(mm.to % 8 + 65) << (int)(mm.to / 8) + 1 << endl;
-			makeMove(board, mm);
-
-
-			if (!isCheck(board, log2(board.figure[BLACK][KING]), BLACK))
-				legalMoves.push_back(mm);
-			unmakeMove(board, mm);
-		}
+		unmakeMove(board, mm);
 	}
 }
 
@@ -670,6 +651,7 @@ void Game::makeMove(Board& board, Move& move)
 	board.figure[move.type_piece3 / P][move.type_piece3 % P] ^= move.move3;
 
 	changeOnPassantMove(board, move);
+	changeCastleRights(board, move);
 
 	// TODO: make more efficient generating occupancy
 	board.occupancy[WHITE] = 0;
@@ -714,29 +696,30 @@ void Game::changeCastleRights(Board& board, Move& move)
 	if (!move.longCastle && !move.shortCastle) return;
 	
 	// checking rights to castle
-	if ((int)(move.type_piece / P) == WHITE)
+	if (((int)(move.type_piece / P)) == WHITE)
 	{
-		if (move.type_piece % P == KING)
+		
+		if ((move.type_piece % P) == KING)
 		{
 			board.WLC = false;
 			board.WSC = false;
 		}
-		else if (move.type_piece % P == ROOK)
+		else if ((move.type_piece % P) == ROOK)
 		{
 			if (move.move & A1)
 				board.WLC = false;
-			else if (move.move & H8)
+			else if (move.move & H1)
 				board.WSC = false;
 		}
 	}
 	else
 	{
-		if (move.type_piece % P == KING)
+		if ((move.type_piece % P) == KING)
 		{
 			board.BLC = false;
 			board.BSC = false;
 		}
-		else if (move.type_piece % P == ROOK)
+		else if ((move.type_piece % P) == ROOK)
 		{
 			if (move.move & A8)
 				board.BLC = false;

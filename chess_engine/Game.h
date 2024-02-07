@@ -32,11 +32,8 @@ public:
 	static void generateMoves(Board&, Color,Figure, list<Move>&);
 
 
-	static void moveGeneration(Board, Color, list<Move>&);
-
-
 	static int generation(Board* board, Color color,int max_deth, int depth = 1);
-	static void test(Board& b);
+
 
 	static Board* boardFromFEN(string fen);
 
