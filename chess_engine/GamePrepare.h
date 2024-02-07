@@ -31,12 +31,8 @@ public:
 	static Bitboard attackKing[M];
 
 	// pawn
-	static Bitboard attackPawnW[M];
-	static Bitboard pawnMovesW[M];
-	static Bitboard attackPawnB[M];
-	static Bitboard pawnMovesB[M];
-	
-	
+	static Bitboard attackPawn[2][M];
+	static Bitboard pawnMoves[2][M];
 
 private:
 

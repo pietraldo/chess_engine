@@ -32,29 +32,29 @@ void printBoard(Board board)
 	for (int i = 0; i < M; i++)
 	{
 		figure[i] = ' ';
-		if (board.figure[blackBishop] & fields[i])
+		if (board.figure[BLACK][BISHOP] & fields[i])
 			figure[i] = 'b';
-		if (board.figure[whiteBishop] & fields[i])
+		if (board.figure[WHITE][BISHOP] & fields[i])
 			figure[i] = 'B';
-		if (board.figure[blackRook] & fields[i])
+		if (board.figure[BLACK][ROOK] & fields[i])
 			figure[i] = 'r';
-		if (board.figure[whiteRook] & fields[i])
+		if (board.figure[WHITE][ROOK] & fields[i])
 			figure[i] = 'R';
-		if (board.figure[blackQueen] & fields[i])
+		if (board.figure[BLACK][QUEEN] & fields[i])
 			figure[i] =  'q';
-		if (board.figure[whiteQueen] & fields[i])
+		if (board.figure[WHITE][QUEEN] & fields[i])
 			figure[i] = 'Q';
-		if (board.figure[blackKing] & fields[i])
+		if (board.figure[BLACK][KING] & fields[i])
 			figure[i] = 'k';
-		if (board.figure[whiteKing] & fields[i])
+		if (board.figure[WHITE][KING] & fields[i])
 			figure[i] = 'K';
-		if (board.figure[blackKnight] & fields[i])
+		if (board.figure[BLACK][KNIGHT] & fields[i])
 			figure[i] = 'n';
-		if (board.figure[whiteKnight] & fields[i])
+		if (board.figure[WHITE][KNIGHT] & fields[i])
 			figure[i] = 'N';
-		if (board.figure[blackPawn] & fields[i])
+		if (board.figure[BLACK][PAWN] & fields[i])
 			figure[i] = 'p';
-		if (board.figure[whitePawn] & fields[i])
+		if (board.figure[WHITE][PAWN] & fields[i])
 			figure[i] = 'P';
 	}
 	cout << endl;

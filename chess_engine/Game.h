@@ -25,37 +25,120 @@ public:
 	static void makeMove(Board&, Move&);
 	static void unmakeMove(Board&, Move&);
 
-	// not checking if king is under check
-	static bool isLegalCastleWhiteShort(Board); 
-	static bool isLegalCastleWhiteLong(Board); 
-	static bool isLegalCastleBlackShort(Board); 
-	static bool isLegalCastleBlackLong(Board); 
+	// checking all conditions for making castle
+	static bool isLegalCastle(Board&, Color, Castle);
+
+	static void moveGeneration2(Board, Color, list<Move>&);
+	static void generateMoves(Board&, Color,Figure, list<Move>&);
+
 
 	static void moveGeneration(Board, Color, list<Move>&);
+
+
 	static int generation(Board* board, Color color,int max_deth, int depth = 1);
 	static void test(Board& b);
 
 	static Board* boardFromFEN(string fen);
 
 private:
+
+	
+
 	// if move is king move or rook move it changes castle rights in board
 	static void changeCastleRights(Board&, Move&);
 	// it changes field of on passant
 	static void changeOnPassantMove(Board&, Move&);
 
-	// adds to list all moves from white rooks, figure - Bitboard which contains figures
-	static void moveGenerationRookWhite(Board&, list<Move>&, Bitboard figure);
-	static void moveGenerationBishopWhite(Board&, list<Move>&, Bitboard figure);
-	static void moveGenerationKnightWhite(Board&, list<Move>&, Bitboard figure);
-	static void moveGenerationPawnWhite(Board&, list<Move>&, Bitboard figure);
-	static void moveGenerationKingWhite(Board&, list<Move>&, Bitboard figure);
+	static Bitboard attackRookf(Board&, int index, Color);
+	static Bitboard attackBishopf(Board&, int index, Color);
+	static Bitboard attackQueenf(Board&, int index, Color);
+	static Bitboard attackKnightf(Board&, int index, Color);
+	static Bitboard attackKingf(Board&, int index, Color);
 	
-	static void moveGenerationRookBlack(Board&, list<Move>&, Bitboard figure);
-	static void moveGenerationBishopBlack(Board&, list<Move>&, Bitboard figure);
-	static void moveGenerationKnightBlack(Board&, list<Move>&, Bitboard figure);
-	static void moveGenerationPawnBlack(Board&, list<Move>&, Bitboard figure);
-	static void moveGenerationKingBlack(Board&, list<Move>&, Bitboard figure);
+	static Bitboard attackPawnf(Board&, int index, Color);
+	static void addPawnMoves(Board&, Color, list<Move>&);
 
 
+	static void addCastleMove(Board&, Color, list<Move>&);
+
+	static constexpr Bitboard(*attacks_funcitons[])(Board&, int, Color) = { attackRookf, attackBishopf, attackKnightf, attackPawnf, attackQueenf, attackKingf };
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

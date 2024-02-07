@@ -31,10 +31,8 @@
  Bitboard* GamePrepare::attackRook[M];
  Bitboard GamePrepare::attackKnight[M];
  Bitboard GamePrepare::attackKing[M];
- Bitboard GamePrepare::attackPawnW[M];
- Bitboard GamePrepare::pawnMovesW[M];
- Bitboard GamePrepare::attackPawnB[M];
- Bitboard GamePrepare::pawnMovesB[M];
+ Bitboard GamePrepare::attackPawn[2][M];
+ Bitboard GamePrepare::pawnMoves[2][M];
 
  GamePrepare::GamePrepare()
  {
@@ -306,16 +304,16 @@ Bitboard GamePrepare::rookMoveForPossition(Bitboard occupancy, int index)
  {
 	 for (int i = 0; i < M; i++)
 	 {
-		 pawnMovesB[i] = 0;
-		 pawnMovesW[i] = 0;
+		 pawnMoves[WHITE][i] = 0;
+		 pawnMoves[BLACK][i] = 0;
 		 if ((int)(i / 8) == 1)
-			 pawnMovesW[i] |= fields[i + 16];
+			 pawnMoves[WHITE][i] |= fields[i + 16];
 		 if ((int)(i / 8) == 6)
-			 pawnMovesB[i] |= fields[i - 16];
+			 pawnMoves[BLACK][i] |= fields[i - 16];
 		 if (i / 8 >= 1 && i / 8 <= 6)
 		 {
-			pawnMovesB[i] |= fields[i - 8];
-			pawnMovesW[i] |= fields[i + 8];
+			pawnMoves[BLACK][i] |= fields[i - 8];
+			pawnMoves[WHITE][i] |= fields[i + 8];
 		 } 
 	 }
  }
@@ -325,24 +323,24 @@ Bitboard GamePrepare::rookMoveForPossition(Bitboard occupancy, int index)
 	 // TODO: zrobic attaki na pierwszymi i ostatnim rzedzie
 	 for (int i = 0; i < M; i++)
 	 {
-		attackPawnW[i] = 0;
-		attackPawnB[i] = 0;
+		attackPawn[WHITE][i] = 0;
+		attackPawn[BLACK][i] = 0;
 
 		if (i % 8 >= 1 && i <= 55)
 		{
-			attackPawnW[i] |= fields[i + 7];
+			attackPawn[WHITE][i] |= fields[i + 7];
 		}
 		if (i >= 8 && i % 8 >= 1)
 		{
-		attackPawnB[i] |= fields[i - 9];
+		attackPawn[BLACK][i] |= fields[i - 9];
 		}
 		if (i >= 8 && i % 8 <= 6)
 		{
-			attackPawnB[i] |= fields[i - 7];
+			attackPawn[BLACK][i] |= fields[i - 7];
 		}
 		if (i % 8 <= 6 && i <= 55)
 		{
-			attackPawnW[i] |= fields[i + 9];
+			attackPawn[WHITE][i] |= fields[i + 9];
 		} 
 	 }
  }
