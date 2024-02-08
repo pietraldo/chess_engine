@@ -39,13 +39,13 @@ public:
 
 private:
 
-	
-
 	// if move is king move or rook move it changes castle rights in board
 	static void changeCastleRights(Board&, Move&);
+	
 	// it changes field of on passant
 	static void changeOnPassantMove(Board&, Move&);
 
+	// returns Bitboard of fields that figure is attacking in this possition
 	static Bitboard attackRookf(Board&, int index, Color);
 	static Bitboard attackBishopf(Board&, int index, Color);
 	static Bitboard attackQueenf(Board&, int index, Color);
@@ -55,9 +55,10 @@ private:
 	static Bitboard attackPawnf(Board&, int index, Color);
 	static void addPawnMoves(Board&, Color, list<Move>&);
 
-
+	// check if castle is legal and if so, adds to move list
 	static void addCastleMove(Board&, Color, list<Move>&);
 
+	// list of functions that generates moves
 	static constexpr Bitboard(*attacks_funcitons[])(Board&, int, Color) = { attackRookf, attackBishopf, attackKnightf, attackPawnf, attackQueenf, attackKingf };
 };
 

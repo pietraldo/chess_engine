@@ -84,7 +84,6 @@ Bitboard Game::attackPawnf(Board& board, int index, Color color)
 	return attackPawn_v;
 }
 
-
 void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 {
 	Bitboard figures = board.figure[color][PAWN];
@@ -95,7 +94,6 @@ void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 		int index_figure = bitScanForward(figures);
 		Bitboard movePawn = GamePrepare::pawnMoves[color][index_figure];
 		Bitboard attacksPawn = attackPawnf(board, index_figure,color);
-
 
 		// delete if is obsticle before pawn
 		movePawn -= movePawn & (board.occupancy[WHITE] | board.occupancy[BLACK]);
@@ -114,180 +112,92 @@ void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
 			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 			if (color == WHITE)
-			{
 				m.move2 = fields[board.onPassantField - 8];
-			}
 			else
-			{
 				m.move2 = fields[board.onPassantField + 8];
-			}
 			m.enPassant = board.onPassantField;
 			moveList.push_back(m);
 		}
 
-		if (color == WHITE)
+		
+		while (attacksPawn)
 		{
-			while (attacksPawn)
+			// geting index of field that rook is attacking
+			int index = bitScanForward(attacksPawn);
+				
+			Move m;
+			m.move = fields[index_figure] | fields[index];
+			m.type_piece = color *P+PAWN;
+			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
+			m.enPassant = board.onPassantField;
+				
+				
+			for (int i = 0; i < 6; i++)
 			{
-				// geting index of field that rook is attacking
-				int index = bitScanForward(attacksPawn);
-				
-				Move m;
-				m.move = fields[index_figure] | fields[index];
-				m.type_piece = WHITE*P+PAWN;
-				m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
-				m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
-				m.enPassant = board.onPassantField;
-				
-				
-				for (int i = 0; i < 6; i++)
+				if (fields[index] & board.figure[opponent_color][i])
 				{
-					if (fields[index] & board.figure[BLACK][i])
-					{
-						m.type_piece2 = BLACK*P+i;
-						m.move2 = fields[index];
-						break;
-					}
+					m.type_piece2 = opponent_color *P+i;
+					m.move2 = fields[index];
+					break;
 				}
-				if (index >= 56)
-				{
+			}
+			if (index >= 56 || index<=7)
+			{
 					
-					m.move = fields[index_figure];
-					m.move3 = fields[index];
-					m.type_piece3 = WHITE*P+QUEEN;
-					moveList.push_back(m);
-					m.type_piece3 = WHITE * P + ROOK;
-					moveList.push_back(m);
-					m.type_piece3 = WHITE * P + KNIGHT;
-					moveList.push_back(m);
-					m.type_piece3 = WHITE * P + BISHOP;
-					moveList.push_back(m);
-				}
-				else
-				{
-					moveList.push_back(m);
-				}
-				
-				
-				
-				// substracting added move
-				attacksPawn &= attacksPawn - 1;
+				m.move = fields[index_figure];
+				m.move3 = fields[index];
+				m.type_piece3 = color *P+QUEEN;
+				moveList.push_back(m);
+				m.type_piece3 = color * P + ROOK;
+				moveList.push_back(m);
+				m.type_piece3 = color * P + KNIGHT;
+				moveList.push_back(m);
+				m.type_piece3 = color * P + BISHOP;
+				moveList.push_back(m);
 			}
-			while (movePawn)
+			else
 			{
-				// geting index of field that rook is attacking
-				int index = bitScanForward(movePawn);
-				
-				Move m;
-				m.move = fields[index] | fields[index_figure];
-				m.type_piece = WHITE * P + PAWN;
-				m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
-				m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
-				m.enPassant = board.onPassantField;
-				if (index >= 56)
-				{
-					m.move = fields[index_figure];
-					m.move3 = fields[index];
-					m.type_piece3 = WHITE * P + QUEEN;
-					moveList.push_back(m);
-					m.type_piece3 = WHITE * P + ROOK;
-					moveList.push_back(m);
-					m.type_piece3 = WHITE * P + KNIGHT;
-					moveList.push_back(m);
-					m.type_piece3 = WHITE * P + BISHOP;
-					moveList.push_back(m);
-				}
-				else
-				{
-					moveList.push_back(m);
-				}
-				
-				// substracting added move
-				movePawn &= movePawn - 1;
+				moveList.push_back(m);
 			}
+
+			// substracting added move
+			attacksPawn &= attacksPawn - 1;
 		}
-		else
+		while (movePawn)
 		{
-			while (attacksPawn)
+			// geting index of field that rook is attacking
+			int index = bitScanForward(movePawn);
+				
+			Move m;
+			m.move = fields[index] | fields[index_figure];
+			m.type_piece = color * P + PAWN;
+			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
+			m.enPassant = board.onPassantField;
+			if (index >= 56 || index<=7)
 			{
-				// geting index of field that rook is attacking
-				int index = bitScanForward(attacksPawn);
-
-				Move m;
-				m.move = fields[index_figure] | fields[index];
-				m.type_piece = BLACK*P+PAWN;
-				m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
-				m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
-				m.enPassant = board.onPassantField;
-
-
-				for (int i = 0; i < 6; i++)
-				{
-					if (fields[index] & board.figure[WHITE][i])
-					{
-						m.type_piece2 = WHITE*P+i;
-						m.move2 = fields[index];
-						break;
-					}
-				}
-				if (index <= 7)
-				{
-					m.move = fields[index_figure];
-					m.move3 = fields[index];
-					m.type_piece3 = BLACK*P+QUEEN;
-					moveList.push_back(m);
-					m.type_piece3 = BLACK * P + ROOK;
-					moveList.push_back(m);
-					m.type_piece3 = BLACK * P + KNIGHT;
-					moveList.push_back(m);
-					m.type_piece3 = BLACK * P + BISHOP;
-					moveList.push_back(m);
-				}
-				else
-				{
-					moveList.push_back(m);
-				}
-
-
-
-				// substracting added move
-				attacksPawn &= attacksPawn - 1;
+				m.move = fields[index_figure];
+				m.move3 = fields[index];
+				m.type_piece3 = color * P + QUEEN;
+				moveList.push_back(m);
+				m.type_piece3 = color * P + ROOK;
+				moveList.push_back(m);
+				m.type_piece3 = color * P + KNIGHT;
+				moveList.push_back(m);
+				m.type_piece3 = color * P + BISHOP;
+				moveList.push_back(m);
 			}
-			while (movePawn)
+			else
 			{
-				// geting index of field that rook is attacking
-				int index = bitScanForward(movePawn);
-
-				Move m;
-				m.move = fields[index_figure] | fields[index];
-				m.type_piece = BLACK * P + PAWN;
-				m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
-				m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
-				m.enPassant = board.onPassantField;
-				if (index <= 7)
-				{
-					m.move = fields[index_figure];
-					m.move3 = fields[index];
-					m.type_piece3 = BLACK * P + QUEEN;
-					moveList.push_back(m);
-					m.type_piece3 = BLACK * P + ROOK;
-					moveList.push_back(m);
-					m.type_piece3 = BLACK * P + KNIGHT;
-					moveList.push_back(m);
-					m.type_piece3 = BLACK * P + BISHOP;
-					moveList.push_back(m);
-				}
-				else
-				{
-					moveList.push_back(m);
-				}
-
-
-
-				// substracting added move
-				movePawn &= movePawn - 1;
+				moveList.push_back(m);
 			}
+				
+			// substracting added move
+			movePawn &= movePawn - 1;
 		}
+		
+		
 		figures &= figures - 1;
 	}
 }
@@ -308,7 +218,6 @@ void Game::generateMoves(Board& board, Color color, Figure figure_type, list<Mov
 
 			m.move = fields[index_attack] | fields[index_figure];
 			m.type_piece = color * P + figure_type;
-			// TODO: change this below because it might be wrong
 			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
 			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 			m.enPassant = board.onPassantField;
@@ -337,65 +246,39 @@ void Game::generateMoves(Board& board, Color color, Figure figure_type, list<Mov
 
 bool Game::isLegalCastle(Board& board, Color color, Castle castle)
 {
-	int start, end;
-	Bitboard fieldsBetween, rookField, kingField;
+	if (!board.castleRights[color][castle]) return false;
 
 	Bitboard occ = board.occupancy[WHITE] | board.occupancy[BLACK];
-	
-	// checking rights for castle and settings variables
+
+	auto check = [&](int start, int end, Bitboard fieldsBetween, Bitboard rookField, Bitboard kingField) -> bool {
+		
+		// checking if there isn't pieces betewen king and rook
+		if ((fieldsBetween & occ)) return false;
+
+		// checking if this field is under attack
+		for (int i = start; i < end; i++)
+			if (isCheck(board, i, color)) return false;
+
+		// checking if pieces are on correct fields
+		if ((board.figure[color][ROOK] & rookField) == 0 || (board.figure[color][KING] & kingField) == 0) return false;
+
+		return true;
+	};
+
 	if (color == WHITE)
 	{
-		kingField = E1;
 		if (castle == SHORTCASTLE)
-		{
-			if (!board.castleRights[WHITE][SHORTCASTLE]) return false;
-			start = 4;
-			end = 7;
-			rookField = H1;
-			fieldsBetween = shortWhiteCastle;
-		}
+			return check(4, 7, shortWhiteCastle, H1, E1);
 		else
-		{
-			if (!board.castleRights[WHITE][LONGCASTLE]) return false;
-			start = 2;
-			end = 5;
-			rookField = A1;
-			fieldsBetween = longWhiteCastle;
-		}
+			return check(2, 5, longWhiteCastle, A1, E1);	
 	}
 	else
 	{
-		kingField = E8;
 		if (castle == SHORTCASTLE)
-		{
-			if (!board.castleRights[BLACK][SHORTCASTLE]) return false;
-			start = 60;
-			end = 63;
-			rookField = H8;
-			fieldsBetween = shortBlackCastle;
-		}
+			return check(60, 63, shortBlackCastle, H8, E8);
 		else
-		{
-			if (!board.castleRights[BLACK][LONGCASTLE]) return false;
-			start = 58;
-			end = 61;
-			rookField = A8;
-			fieldsBetween = longBlackCastle;
-
-		}
+			return check(58, 61, longBlackCastle, A8, E8);
 	}
-
-	// checking if there isn't pieces betewen king and rook
-	if ((fieldsBetween & occ)) return false;
-
-	// checking if this field is under attack
-	for (int i = start; i < end; i++)
-		if (isCheck(board, i, color)) return false;
-
-	// checking if pieces are on correct fields
-	if ((board.figure[color][ROOK] & rookField) == 0 || (board.figure[color][KING] & kingField) == 0) return false;
-	
-	return true;
 }
 
 Board* Game::boardFromFEN(string fen)
@@ -503,6 +386,7 @@ int Game::generation(Board* board, Color color,int max_depth, int depth)
 	int num = 0;
 	for (auto m : legalMoves)
 	{
+		// copying board
 		Board* boardNew= new Board();
 		boardNew->castleRights[0][0] = board->castleRights[0][0];
 		boardNew->castleRights[0][1] = board->castleRights[0][1];
@@ -580,66 +464,35 @@ void Game::moveGeneration2(Board board, Color color, list<Move>& legalMoves)
 
 void Game::addCastleMove(Board& board, Color color, list<Move>& moveList)
 {
+	auto addMove = [&](Bitboard fields_move_king, Bitboard fields_move_rook) {
+		Move m;
+		m.move = fields_move_king;
+		m.type_piece = color * P + KING;
+		m.move2 = fields_move_rook;
+		m.type_piece2 = color * P + ROOK;
+		m.enPassant = board.onPassantField;
+
+		m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+		m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
+
+		moveList.push_back(m);
+	};
+
 	if (color == WHITE)
 	{
 		if (isLegalCastle(board, color, SHORTCASTLE))
-		{
-			Move m;
-			m.move = E1 | G1;
-			m.type_piece = color * P + KING;
-			m.move2 = H1 | F1;
-			m.type_piece2 = color * P + ROOK;
-			m.enPassant = board.onPassantField;
+			addMove(E1|G1, H1|F1);
 
-			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
-			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
-
-			moveList.push_back(m);
-			
-		}
 		if (isLegalCastle(board, color, LONGCASTLE))
-		{
-			Move m;
-			m.move = E1 | C1;
-			m.type_piece = color * P + KING;
-			m.move2 = A1 | D1;
-			m.type_piece2 = color * P + ROOK;
-			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
-			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
-			m.enPassant = board.onPassantField;
-
-			moveList.push_back(m);
-		}
+			addMove(E1 | C1, A1 | D1);
 	}
 	else
 	{
 		if (isLegalCastle(board, color, SHORTCASTLE))
-		{
-			Move m;
-			m.move = E8 | G8;
-			m.type_piece = color * P + KING;
-			m.move2 = H8 | F8;
-			m.type_piece2 = color * P + ROOK;
-			m.enPassant = board.onPassantField;
-			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
-			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
+			addMove(E8 | G8,H8 | F8);
 
-			moveList.push_back(m);
-		}
 		if (isLegalCastle(board, color, LONGCASTLE))
-		{
-			Move m;
-			m.move = E8 | C8;
-			m.type_piece = color * P + KING;
-			m.move2 = A8 | D8;
-			m.type_piece2 = color * P + ROOK;
-
-			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
-			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
-			m.enPassant = board.onPassantField;
-
-			moveList.push_back(m);
-		}
+			addMove(E8 | C8, A8 | D8);
 	}
 
 }
@@ -653,14 +506,10 @@ void Game::makeMove(Board& board, Move& move)
 	changeOnPassantMove(board, move);
 	changeCastleRights(board, move);
 
-	// TODO: make more efficient generating occupancy
-	board.occupancy[WHITE] = 0;
-	board.occupancy[BLACK] = 0;
-	for (int i = 0; i < 6; i++)
-	{
-		board.occupancy[WHITE] |= board.figure[WHITE][i];
-		board.occupancy[BLACK] |= board.figure[BLACK][i];
-	}
+	// changing board occupancy
+	board.occupancy[move.type_piece / P] ^= move.move;
+	board.occupancy[move.type_piece2 / P] ^= move.move2;
+	board.occupancy[move.type_piece3 / P] ^= move.move3;
 }
 
 void Game::unmakeMove(Board& board, Move& move)
@@ -681,68 +530,59 @@ void Game::unmakeMove(Board& board, Move& move)
 
 	board.onPassantField = move.enPassant;
 
-	// TODO: make more efficient generating occupancy
-	board.occupancy[WHITE] = 0;
-	board.occupancy[BLACK] = 0;
-	for (int i = 0; i < 6; i++)
-	{
-		board.occupancy[WHITE] |= board.figure[WHITE][i];
-		board.occupancy[BLACK] |= board.figure[BLACK][i];
-	}
+	board.occupancy[move.type_piece / P] ^= move.move;
+	board.occupancy[move.type_piece2 / P] ^= move.move2;
+	board.occupancy[move.type_piece3 / P] ^= move.move3;
 }
 
 void Game::changeCastleRights(Board& board, Move& move)
 {
+	// if they have no castle rights return because nothing can change
 	if (!move.castleRights[0] && !move.castleRights[1]) return;
 	
-	// checking rights to castle
-	if (((int)(move.type_piece / P)) == WHITE)
+	int color = (move.type_piece / P);
+	Bitboard rook1, rook2;
+
+	if (color == WHITE)
 	{
-		
-		if ((move.type_piece % P) == KING)
-		{
-			board.castleRights[WHITE][SHORTCASTLE] = false;
-			board.castleRights[WHITE][LONGCASTLE] = false;
-		}
-		else if ((move.type_piece % P) == ROOK)
-		{
-			if (move.move & A1)
-				board.castleRights[WHITE][LONGCASTLE] = false;
-			else if (move.move & H1)
-				board.castleRights[WHITE][SHORTCASTLE] = false;
-		}
+		rook1 = A1;
+		rook2 = H1;
 	}
 	else
 	{
-		if ((move.type_piece % P) == KING)
-		{
-			board.castleRights[BLACK][SHORTCASTLE] = false;
-			board.castleRights[BLACK][LONGCASTLE] = false;
-		}
-		else if ((move.type_piece % P) == ROOK)
-		{
-			if (move.move & A8)
-				board.castleRights[BLACK][LONGCASTLE] = false;
-			else if (move.move & H8)
-				board.castleRights[BLACK][SHORTCASTLE] = false;
-		}
+		rook1 = A8;
+		rook2 = H8;
+	}
+
+	// changing rights to castle
+	if ((move.type_piece % P) == KING)
+	{
+		board.castleRights[color][SHORTCASTLE] = false;
+		board.castleRights[color][LONGCASTLE] = false;
+	}
+	else if ((move.type_piece % P) == ROOK)
+	{
+		if (move.move & rook1)
+			board.castleRights[color][LONGCASTLE] = false;
+		else if (move.move & rook2)
+			board.castleRights[color][SHORTCASTLE] = false;
 	}
 }
 
 void Game::changeOnPassantMove(Board& board, Move& move)
 {
+	// if piece is pawn and it moved two squares => set onPassant field between start field and end field
 	board.onPassantField = 64;
 	if (move.type_piece == WHITE*P+PAWN || move.type_piece == BLACK*P+PAWN)
 	{
 		int one = bitScanForward(move.move);
 		int two = bitScanForward(move.move^fields[one]);
-		//cout << one << " " << two << endl;
+
 		if (abs(one - two) == 16)
 		{
 			board.onPassantField = (one+two)/2;
 			
 		}
-		
 	}	
 }
 
