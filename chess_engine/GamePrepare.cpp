@@ -478,16 +478,4 @@ Bitboard GamePrepare::rookMoveForPossition(Bitboard occupancy, int index)
 		 add(1, -1);
 		 add(-1, -1);
 	 }
-
-	 // testing 
-	 /*cout<<endl<<endl << "E5" << endl;
-	 printBoard(bishopMask[h1(E5)]);
-	 cout<<endl<<endl << "H1" << endl;
-	 printBoard(bishopMask[h1(H1)]);
-	 cout<<endl<<endl << "A8" << endl;
-	 printBoard(bishopMask[h1(A8)]);
-	 cout<<endl<<endl << "F1" << endl;
-	 printBoard(bishopMask[h1(F1)]);
-	 cout<<endl<<endl << "H4" << endl;
-	 printBoard(bishopMask[h1(H4)]);*/
  }

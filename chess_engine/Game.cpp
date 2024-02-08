@@ -111,17 +111,15 @@ void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 			m.move = fields[index_figure] | fields[board.onPassantField];
 			m.type_piece = color * P + PAWN;
 			m.type_piece2 = opponent_color * P + PAWN;
+			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 			if (color == WHITE)
 			{
 				m.move2 = fields[board.onPassantField - 8];
-				m.longCastle = board.WLC;
-				m.shortCastle = board.WSC;
 			}
 			else
 			{
 				m.move2 = fields[board.onPassantField + 8];
-				m.longCastle = board.BLC;
-				m.shortCastle = board.BSC;
 			}
 			m.enPassant = board.onPassantField;
 			moveList.push_back(m);
@@ -137,8 +135,8 @@ void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 				Move m;
 				m.move = fields[index_figure] | fields[index];
 				m.type_piece = WHITE*P+PAWN;
-				m.longCastle = board.WLC;
-				m.shortCastle = board.WSC;
+				m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+				m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 				m.enPassant = board.onPassantField;
 				
 				
@@ -183,8 +181,8 @@ void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 				Move m;
 				m.move = fields[index] | fields[index_figure];
 				m.type_piece = WHITE * P + PAWN;
-				m.longCastle = board.WLC;
-				m.shortCastle = board.WSC;
+				m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+				m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 				m.enPassant = board.onPassantField;
 				if (index >= 56)
 				{
@@ -218,8 +216,8 @@ void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 				Move m;
 				m.move = fields[index_figure] | fields[index];
 				m.type_piece = BLACK*P+PAWN;
-				m.longCastle = board.BLC;
-				m.shortCastle = board.BSC;
+				m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+				m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 				m.enPassant = board.onPassantField;
 
 
@@ -263,8 +261,8 @@ void Game::addPawnMoves(Board& board, Color color, list<Move>& moveList)
 				Move m;
 				m.move = fields[index_figure] | fields[index];
 				m.type_piece = BLACK * P + PAWN;
-				m.longCastle = board.BLC;
-				m.shortCastle = board.BSC;
+				m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+				m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 				m.enPassant = board.onPassantField;
 				if (index <= 7)
 				{
@@ -311,8 +309,8 @@ void Game::generateMoves(Board& board, Color color, Figure figure_type, list<Mov
 			m.move = fields[index_attack] | fields[index_figure];
 			m.type_piece = color * P + figure_type;
 			// TODO: change this below because it might be wrong
-			m.longCastle = board.WLC;
-			m.shortCastle = board.WSC;
+			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 			m.enPassant = board.onPassantField;
 
 			Color opposit_color = toggleColor(color);
@@ -350,7 +348,7 @@ bool Game::isLegalCastle(Board& board, Color color, Castle castle)
 		kingField = E1;
 		if (castle == SHORTCASTLE)
 		{
-			if (!board.WSC) return false;
+			if (!board.castleRights[WHITE][SHORTCASTLE]) return false;
 			start = 4;
 			end = 7;
 			rookField = H1;
@@ -358,7 +356,7 @@ bool Game::isLegalCastle(Board& board, Color color, Castle castle)
 		}
 		else
 		{
-			if (!board.WLC) return false;
+			if (!board.castleRights[WHITE][LONGCASTLE]) return false;
 			start = 2;
 			end = 5;
 			rookField = A1;
@@ -370,7 +368,7 @@ bool Game::isLegalCastle(Board& board, Color color, Castle castle)
 		kingField = E8;
 		if (castle == SHORTCASTLE)
 		{
-			if (!board.BSC) return false;
+			if (!board.castleRights[BLACK][SHORTCASTLE]) return false;
 			start = 60;
 			end = 63;
 			rookField = H8;
@@ -378,7 +376,7 @@ bool Game::isLegalCastle(Board& board, Color color, Castle castle)
 		}
 		else
 		{
-			if (!board.BLC) return false;
+			if (!board.castleRights[BLACK][LONGCASTLE]) return false;
 			start = 58;
 			end = 61;
 			rookField = A8;
@@ -423,10 +421,10 @@ Board* Game::boardFromFEN(string fen)
 	Board* board = new Board();
 	board->whoToMove = move == "w" ? WHITE : BLACK;
 	board->onPassantField = onPassantField == "-" ? 64 : int(onPassantField[0] - 97) + (int)(onPassantField[1]-'1') * 8;
-	board->WSC = castle.find("K")!=string::npos;
-	board->WLC = castle.find("Q")!=string::npos;
-	board->BSC = castle.find("k")!=string::npos;
-	board->BLC = castle.find("q")!=string::npos;
+	board->castleRights[WHITE][SHORTCASTLE] = castle.find("K") != string::npos;
+	board->castleRights[WHITE][LONGCASTLE] = castle.find("Q")!=string::npos;
+	board->castleRights[BLACK][SHORTCASTLE] = castle.find("k")!=string::npos;
+	board->castleRights[BLACK][LONGCASTLE] = castle.find("q")!=string::npos;
 
 	int row=7;
 	int column = 0;
@@ -506,10 +504,11 @@ int Game::generation(Board* board, Color color,int max_depth, int depth)
 	for (auto m : legalMoves)
 	{
 		Board* boardNew= new Board();
-		boardNew->BLC = board->BLC;
-		boardNew->BSC = board->BSC;
-		boardNew->WSC = board->WSC;
-		boardNew->WLC = board->WLC;
+		boardNew->castleRights[0][0] = board->castleRights[0][0];
+		boardNew->castleRights[0][1] = board->castleRights[0][1];
+		boardNew->castleRights[1][0] = board->castleRights[1][0];
+		boardNew->castleRights[1][1] = board->castleRights[1][1];
+
 		boardNew->onPassantField=board->onPassantField;
 		
 		for (int i = 0; i < 6; i++)
@@ -590,9 +589,10 @@ void Game::addCastleMove(Board& board, Color color, list<Move>& moveList)
 			m.type_piece = color * P + KING;
 			m.move2 = H1 | F1;
 			m.type_piece2 = color * P + ROOK;
-			m.longCastle = board.WLC;
 			m.enPassant = board.onPassantField;
-			m.shortCastle = board.WSC;
+
+			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 
 			moveList.push_back(m);
 			
@@ -604,8 +604,8 @@ void Game::addCastleMove(Board& board, Color color, list<Move>& moveList)
 			m.type_piece = color * P + KING;
 			m.move2 = A1 | D1;
 			m.type_piece2 = color * P + ROOK;
-			m.longCastle = board.WLC;
-			m.shortCastle = board.WSC;
+			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 			m.enPassant = board.onPassantField;
 
 			moveList.push_back(m);
@@ -620,9 +620,9 @@ void Game::addCastleMove(Board& board, Color color, list<Move>& moveList)
 			m.type_piece = color * P + KING;
 			m.move2 = H8 | F8;
 			m.type_piece2 = color * P + ROOK;
-			m.longCastle = board.BLC;
 			m.enPassant = board.onPassantField;
-			m.shortCastle = board.BSC;
+			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 
 			moveList.push_back(m);
 		}
@@ -634,8 +634,8 @@ void Game::addCastleMove(Board& board, Color color, list<Move>& moveList)
 			m.move2 = A8 | D8;
 			m.type_piece2 = color * P + ROOK;
 
-			m.longCastle = board.BLC;
-			m.shortCastle = board.BSC;
+			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
 			m.enPassant = board.onPassantField;
 
 			moveList.push_back(m);
@@ -667,13 +667,13 @@ void Game::unmakeMove(Board& board, Move& move)
 {
 	if (move.type_piece < 6) // white move
 	{
-		board.WLC = move.longCastle;
-		board.WSC = move.shortCastle;
+		board.castleRights[WHITE][SHORTCASTLE]= move.castleRights[SHORTCASTLE];
+		board.castleRights[WHITE][LONGCASTLE]= move.castleRights[LONGCASTLE];
 	}
 	else
 	{
-		board.BLC = move.longCastle;
-		board.BSC = move.shortCastle;
+		board.castleRights[BLACK][SHORTCASTLE] = move.castleRights[SHORTCASTLE];
+		board.castleRights[BLACK][LONGCASTLE] = move.castleRights[LONGCASTLE];
 	}
 	board.figure[move.type_piece / P][move.type_piece % P] ^= move.move;
 	board.figure[move.type_piece2 / P][move.type_piece2 % P] ^= move.move2;
@@ -693,7 +693,7 @@ void Game::unmakeMove(Board& board, Move& move)
 
 void Game::changeCastleRights(Board& board, Move& move)
 {
-	if (!move.longCastle && !move.shortCastle) return;
+	if (!move.castleRights[0] && !move.castleRights[1]) return;
 	
 	// checking rights to castle
 	if (((int)(move.type_piece / P)) == WHITE)
@@ -701,30 +701,30 @@ void Game::changeCastleRights(Board& board, Move& move)
 		
 		if ((move.type_piece % P) == KING)
 		{
-			board.WLC = false;
-			board.WSC = false;
+			board.castleRights[WHITE][SHORTCASTLE] = false;
+			board.castleRights[WHITE][LONGCASTLE] = false;
 		}
 		else if ((move.type_piece % P) == ROOK)
 		{
 			if (move.move & A1)
-				board.WLC = false;
+				board.castleRights[WHITE][LONGCASTLE] = false;
 			else if (move.move & H1)
-				board.WSC = false;
+				board.castleRights[WHITE][SHORTCASTLE] = false;
 		}
 	}
 	else
 	{
 		if ((move.type_piece % P) == KING)
 		{
-			board.BLC = false;
-			board.BSC = false;
+			board.castleRights[BLACK][SHORTCASTLE] = false;
+			board.castleRights[BLACK][LONGCASTLE] = false;
 		}
 		else if ((move.type_piece % P) == ROOK)
 		{
 			if (move.move & A8)
-				board.BLC = false;
+				board.castleRights[BLACK][LONGCASTLE] = false;
 			else if (move.move & H8)
-				board.BSC = false;
+				board.castleRights[BLACK][SHORTCASTLE] = false;
 		}
 	}
 }

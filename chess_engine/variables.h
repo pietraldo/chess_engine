@@ -21,10 +21,7 @@ typedef struct Board
 {
 	Bitboard figure[2][6]; 
 	Bitboard occupancy[2];
-	bool BLC; //black right to long castle
-	bool BSC; //black right to short castle
-	bool WLC; //white right to long castle
-	bool WSC; //white right to short castle
+	bool castleRights[2][2];
 	int onPassantField; // index o field 0-63
 	Color whoToMove; // who's turn is to move
 };
@@ -39,8 +36,7 @@ typedef struct Move
 	Bitboard move3=0; 
 	int type_piece3=0; 
 
-	bool shortCastle; // for possibility to undo move
-	bool longCastle; // also
+	bool castleRights[2];
 	int enPassant;  // and this also
 };
 

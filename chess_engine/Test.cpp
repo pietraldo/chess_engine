@@ -41,8 +41,8 @@ void printColoredResult(const std::string& result) {
 bool Test::test1()
 {
 	bool show=false;
-	int depth = 4;
-	/*string fen[] = { 
+	int depth = 5;
+	string fen[] = { 
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" ,
 		"rnbqkbnr/p3ppp1/1p5p/3p4/2BP4/5Q2/PPP2PPP/RNB1K1NR w KQkq - 0 6",
 		"rnbqkbnr/pPpppp1p/8/8/8/8/P1pPP2P/RNBQKBNR w KQkq - 0 1",
@@ -53,11 +53,11 @@ bool Test::test1()
 		"r3k2r/p1pppppp/2np1bn1/3P4/1Q1q3P/1NB2N2/PPP2BPP/R3K2R b KQkq - 0 1",
 		"r3k2r/p1pppppp/2np1bn1/3P4/1Q1q3P/1NB2N2/PPP2BPP/R3K2R w KQkq - 0 1",
 		"8/1P1k4/8/3K4/8/7p/8/8 w - - 0 1"
-	};*/
-	string fen[] = { 
+	};
+	/*string fen[] = { 
 		"r3k3/1p6/8/8/8/8/1P6/4K2R b Kq - 0 1" 
 		
-	};
+	};*/
 	
 	long sumN = 0;
 	double sumT = 0;
@@ -143,8 +143,8 @@ bool Test::test2()
 		}
 
 		cout << "Ruchow lacznie: " << moves.size() << endl;
-		cout << "Castle rights white: " << board->WSC << " " << board->WLC << endl;
-		cout << "Castle rights black: " << board->BSC << " " << board->BLC << endl;
+		cout << "Castle rights white: " << board->castleRights[0][0] << " " << board->castleRights[0][1] << endl;
+		cout << "Castle rights black: " << board->castleRights[1][0] << " " << board->castleRights[1][1] << endl;
 		printBoard(*board);
 
 		int number;
