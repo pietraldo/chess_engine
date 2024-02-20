@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "Game.h"
+#include "MoveGeneration.h"
 #include "ReadyChessEngine.h"
 
 class Test

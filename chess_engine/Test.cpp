@@ -41,7 +41,7 @@ void printColoredResult(const std::string& result) {
 bool Test::test1()
 {
 	bool show=false;
-	int depth = 4;
+	int depth = 5;
 	string fen[] = { 
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" ,
 		"rnbqkbnr/p3ppp1/1p5p/3p4/2BP4/5Q2/PPP2PPP/RNB1K1NR w KQkq - 0 6",
@@ -68,18 +68,18 @@ bool Test::test1()
 		// stockfish response
 		string stockfish = ReadyChessEngine::GiveAnswer(("position fen " + fen[i] + "\ngo perft " + to_string(depth) + "\n\quit\n").c_str());
 
-		Board* board = Game::boardFromFEN(fen[i]);
+		Board* board = MoveGeneration::boardFromFEN(fen[i]);
 		
-		Game::output = "";
+		MoveGeneration::output = "";
 		auto start = high_resolution_clock::now();
 
 		// my response
-		int nodes = Game::generation(board, board->whoToMove, depth);
+		int nodes = MoveGeneration::generation(board, board->whoToMove, depth);
 
 		auto stop = high_resolution_clock::now();
 		double seconds = (double)duration_cast<microseconds>(stop - start).count()/1000000;
 
-		string myEngine = Game::output;
+		string myEngine = MoveGeneration::output;
 		string stockfish_nodes=compareMoveGeneration(stockfish, myEngine, true);
 
 		cout << "Nodes: " << formatWithDots(nodes) << endl;
@@ -115,14 +115,14 @@ int bitScanForward2(Bitboard bb)
 bool Test::test2()
 {
 	Color color = WHITE;
-	Board* board = Game::boardFromFEN("r3k3/1p6/8/8/8/8/1P6/4K2R w KAhq - 0 1");
+	Board* board = MoveGeneration::boardFromFEN("r3k3/1p6/8/8/8/8/1P6/4K2R w KAhq - 0 1");
 	list<Move> history = list<Move>();
 	while (1)
 	{
 		list<Move> moves = list<Move>();
 
 		
-		Game::moveGeneration2(*board,color, moves);
+		MoveGeneration::moveGeneration2(*board,color, moves);
 		color = toggleColor(color);
 		
 		int i = 0;
@@ -157,7 +157,7 @@ bool Test::test2()
 				--number;
 				if (number == 0)
 				{
-					Game::makeMove(*board, m);
+					MoveGeneration::makeMove(*board, m);
 					history.push_back(m);
 				}
 
@@ -167,7 +167,7 @@ bool Test::test2()
 		{
 			if (history.empty()) continue;
 			Move m = history.back();
-			Game::unmakeMove(*board, m);
+			MoveGeneration::unmakeMove(*board, m);
 			history.pop_back();
 		}
 

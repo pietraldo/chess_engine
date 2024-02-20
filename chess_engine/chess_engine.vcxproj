@@ -136,6 +136,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GamePrepare.cpp" />
     <ClCompile Include="MagicBitboards.cpp" />
+    <ClCompile Include="MoveGeneration.cpp" />
     <ClCompile Include="prog.cpp" />
     <ClCompile Include="ReadyChessEngine.cpp" />
     <ClCompile Include="Test.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GamePrepare.h" />
     <ClInclude Include="MagicBitboards.h" />
+    <ClInclude Include="MoveGeneration.h" />
     <ClInclude Include="ReadyChessEngine.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="variables.h" />

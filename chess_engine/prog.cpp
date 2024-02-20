@@ -9,6 +9,7 @@
 #include "GamePrepare.h"
 #include "Functions.h"
 #include "Game.h"
+#include "MoveGeneration.h"
 #include "Test.h"
 
 #define N 8
