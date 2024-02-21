@@ -436,6 +436,47 @@ int MoveGeneration::generation(Board* board, Color color, int max_depth, int dep
 	return num;
 }
 
+// TODO: except checking all checks in castle rights do attack board
+
+
+
+void MoveGeneration::generateMovesNew(Board& board, Color color, list<Move>&)
+{
+	// There are three options
+	// 1. double (or more) checks -> king move
+	// 2. check -> king move, capture, cover
+	// 3. no check
+	
+	// checking how many checks are there and creating attack map
+	int num_checks = 0;
+	Bitboard attackMap = 0;
+	Color oponent = toggleColor(color);
+	Bitboard kingField = board.figure[color][KING];
+
+	for (int i = 0; i < P; i++)
+	{
+		Bitboard figures = board.figure[oponent][i];
+
+		while(figures)
+		{
+			int index = bitScanForward(figures);
+			Bitboard attackFigure=attacks_funcitons[i](board, index, color);
+			if (attackFigure & kingField)
+				num_checks++;
+			attackMap |= attackFigure;
+
+			figures &= figures - 1;
+		}
+	}
+	if (num_checks >= 2)
+	{
+		Bitboard kingMoves = attackKingf(board, bitScanForward(board.figure[color][KING]), color);
+		kingMoves -= kingMoves & attackMap;
+
+	}
+	// looking for pinned figures
+	// generating moves for pinned
+}
 
 // returns list of legal moves in given position for the color
 void MoveGeneration::moveGeneration2(Board board, Color color, list<Move>& legalMoves)

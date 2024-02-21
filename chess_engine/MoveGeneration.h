@@ -31,6 +31,8 @@ public:
 	static void moveGeneration2(Board, Color, list<Move>&);
 	static void generateMoves(Board&, Color, Figure, list<Move>&);
 
+	static void generateMovesNew(Board&, Color, list<Move>&);
+
 
 	static int generation(Board* board, Color color, int max_deth, int depth = 1);
 
@@ -38,7 +40,7 @@ public:
 	static Board* boardFromFEN(string fen);
 
 private:
-
+	
 	// if move is king move or rook move it changes castle rights in board
 	static void changeCastleRights(Board&, Move&);
 
@@ -61,6 +63,77 @@ private:
 	// list of functions that generates moves
 	static constexpr Bitboard(*attacks_funcitons[])(Board&, int, Color) = { attackRookf, attackBishopf, attackKnightf, attackPawnf, attackQueenf, attackKingf };
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

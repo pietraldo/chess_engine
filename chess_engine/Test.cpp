@@ -40,8 +40,9 @@ void printColoredResult(const std::string& result) {
 
 bool Test::test1()
 {
+
 	bool show=false;
-	int depth = 5;
+	int depth = 4;
 	string fen[] = { 
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" ,
 		"rnbqkbnr/p3ppp1/1p5p/3p4/2BP4/5Q2/PPP2PPP/RNB1K1NR w KQkq - 0 6",
@@ -80,7 +81,7 @@ bool Test::test1()
 		double seconds = (double)duration_cast<microseconds>(stop - start).count()/1000000;
 
 		string myEngine = MoveGeneration::output;
-		string stockfish_nodes=compareMoveGeneration(stockfish, myEngine, true);
+		string stockfish_nodes=compareMoveGeneration(stockfish, myEngine, false);
 
 		cout << "Nodes: " << formatWithDots(nodes) << endl;
 		cout << "Seconds: " << seconds << endl;
@@ -114,64 +115,65 @@ int bitScanForward2(Bitboard bb)
 }
 bool Test::test2()
 {
-	Color color = WHITE;
-	Board* board = MoveGeneration::boardFromFEN("r3k3/1p6/8/8/8/8/1P6/4K2R w KAhq - 0 1");
-	list<Move> history = list<Move>();
-	while (1)
-	{
-		list<Move> moves = list<Move>();
+	return false;
+	//Color color = WHITE;
+	//Board* board = MoveGeneration::boardFromFEN("r3k3/1p6/8/8/8/8/1P6/4K2R w KAhq - 0 1");
+	//list<Move> history = list<Move>();
+	//while (1)
+	//{
+	//	list<Move> moves = list<Move>();
 
-		
-		MoveGeneration::moveGeneration2(*board,color, moves);
-		color = toggleColor(color);
-		
-		int i = 0;
-		for (const auto& m : moves)
-		{
-			int one = bitScanForward2(m.move);
-			int two = bitScanForward2(m.move ^ fields[one]);
-			Bitboard aa = ((board->whoToMove == WHITE) ? board->occupancy[WHITE] : board->occupancy[BLACK]);
+	//	
+	//	MoveGeneration::moveGeneration2(*board,color, moves);
+	//	color = toggleColor(color);
+	//	
+	//	int i = 0;
+	//	for (const auto& m : moves)
+	//	{
+	//		int one = bitScanForward2(m.move);
+	//		int two = bitScanForward2(m.move ^ fields[one]);
+	//		Bitboard aa = ((board->whoToMove == WHITE) ? board->occupancy[WHITE] : board->occupancy[BLACK]);
 
-			if (fields[one] & aa)
-				swap(two, one);
-			//printBitboard(m.move);
-			char a = (char)(two % 8 + 97);
-			int b = (int)(two / 8) + 1;
-			char c = (char)(one % 8 + 97);
-			int d = (int)(one / 8) + 1;
-			cout<<++i<<". " << a + to_string(b) + c + to_string(d)<<endl;
-		}
+	//		if (fields[one] & aa)
+	//			swap(two, one);
+	//		//printBitboard(m.move);
+	//		char a = (char)(two % 8 + 97);
+	//		int b = (int)(two / 8) + 1;
+	//		char c = (char)(one % 8 + 97);
+	//		int d = (int)(one / 8) + 1;
+	//		cout<<++i<<". " << a + to_string(b) + c + to_string(d)<<endl;
+	//	}
 
-		cout << "Ruchow lacznie: " << moves.size() << endl;
-		cout << "Castle rights white: " << board->castleRights[0][0] << " " << board->castleRights[0][1] << endl;
-		cout << "Castle rights black: " << board->castleRights[1][0] << " " << board->castleRights[1][1] << endl;
-		printBoard(*board);
+	//	cout << "Ruchow lacznie: " << moves.size() << endl;
+	//	cout << "Castle rights white: " << board->castleRights[0][0] << " " << board->castleRights[0][1] << endl;
+	//	cout << "Castle rights black: " << board->castleRights[1][0] << " " << board->castleRights[1][1] << endl;
+	//	printBoard(*board);
 
-		int number;
+	//	int number;
 
-		cin >> number;
-		if (number != 0)
-		{
-			for (auto& m : moves)
-			{
-				--number;
-				if (number == 0)
-				{
-					MoveGeneration::makeMove(*board, m);
-					history.push_back(m);
-				}
+	//	cin >> number;
+	//	if (number != 0)
+	//	{
+	//		for (auto& m : moves)
+	//		{
+	//			--number;
+	//			if (number == 0)
+	//			{
+	//				MoveGeneration::makeMove(*board, m);
+	//				history.push_back(m);
+	//			}
 
-			}
-		}
-		else
-		{
-			if (history.empty()) continue;
-			Move m = history.back();
-			MoveGeneration::unmakeMove(*board, m);
-			history.pop_back();
-		}
+	//		}
+	//	}
+	//	else
+	//	{
+	//		if (history.empty()) continue;
+	//		Move m = history.back();
+	//		MoveGeneration::unmakeMove(*board, m);
+	//		history.pop_back();
+	//	}
 
-	}
+	//}
 }
 
 
