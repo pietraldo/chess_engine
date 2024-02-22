@@ -7,6 +7,96 @@ int bitScanForward(Bitboard bb)
 	return index;
 }
 
+Board* MoveGeneration::boardFromFEN(string fen)
+{
+	// example string: r4rk1/1bpq1ppp/pp2p3/3nP3/PbBP4/2N3B1/1P2QPPP/R2R2K1 w - - 1 18
+
+	// substracting first part from string
+	size_t pos = fen.find(' ');
+	string position = fen.substr(0, pos);
+
+	fen = fen.substr(pos + 1);
+	pos = fen.find(' ');
+	string move = fen.substr(0, pos);
+
+	fen = fen.substr(pos + 1);
+	pos = fen.find(' ');
+	string castle = fen.substr(0, fen.find(' '));
+
+	fen = fen.substr(pos + 1);
+	pos = fen.find(' ');
+	string onPassantField = fen.substr(0, fen.find(' '));
+
+	Board* board = new Board();
+	board->whoToMove = move == "w" ? WHITE : BLACK;
+	board->onPassantField = onPassantField == "-" ? 64 : int(onPassantField[0] - 97) + (int)(onPassantField[1] - '1') * 8;
+	board->castleRights[WHITE][SHORTCASTLE] = castle.find("K") != string::npos;
+	board->castleRights[WHITE][LONGCASTLE] = castle.find("Q") != string::npos;
+	board->castleRights[BLACK][SHORTCASTLE] = castle.find("k") != string::npos;
+	board->castleRights[BLACK][LONGCASTLE] = castle.find("q") != string::npos;
+
+	int row = 7;
+	int column = 0;
+	for (int i = 0; i < position.size(); i++)
+	{
+		switch (position[i])
+		{
+		case 'r':
+			board->figure[BLACK][ROOK] |= fields[row * N + column];
+			break;
+		case 'R':
+			board->figure[WHITE][ROOK] |= fields[row * N + column];
+			break;
+		case 'q':
+			board->figure[BLACK][QUEEN] |= fields[row * N + column];
+			break;
+		case 'Q':
+			board->figure[WHITE][QUEEN] |= fields[row * N + column];
+			break;
+		case 'k':
+			board->figure[BLACK][KING] |= fields[row * N + column];
+			break;
+		case 'K':
+			board->figure[WHITE][KING] |= fields[row * N + column];
+			break;
+		case 'p':
+			board->figure[BLACK][PAWN] |= fields[row * N + column];
+			break;
+		case 'P':
+			board->figure[WHITE][PAWN] |= fields[row * N + column];
+			break;
+		case 'N':
+			board->figure[WHITE][KNIGHT] |= fields[row * N + column];
+			break;
+		case 'n':
+			board->figure[BLACK][KNIGHT] |= fields[row * N + column];
+			break;
+		case 'B':
+			board->figure[WHITE][BISHOP] |= fields[row * N + column];
+			break;
+		case 'b':
+			board->figure[BLACK][BISHOP] |= fields[row * N + column];
+			break;
+		case '/':
+			column = 0;
+			row--;
+			continue;
+			break;
+		default:
+			column += (int)(position[i] - '1');
+			break;
+		}
+		column++;
+	}
+	for (int i = 0; i < 6; i++)
+	{
+		board->occupancy[WHITE] |= board->figure[WHITE][i];
+		board->occupancy[BLACK] |= board->figure[BLACK][i];
+	}
+	return board;
+}
+
+
 bool MoveGeneration::isCheck(Board board, int kingField, Color kingColor)
 {
 	Color oppositeColor = toggleColor(kingColor);
@@ -29,6 +119,43 @@ bool MoveGeneration::isCheck(Board board, int kingField, Color kingColor)
 	if ((GamePrepare::attackKing[kingField] & board.figure[oppositeColor][KING]) != 0) return true;
 
 	return false;
+}
+
+bool MoveGeneration::isLegalCastle(Board& board, Color color, Castle castle)
+{
+	if (!board.castleRights[color][castle]) return false;
+
+	Bitboard occ = board.occupancy[WHITE] | board.occupancy[BLACK];
+
+	auto check = [&](int start, int end, Bitboard fieldsBetween, Bitboard rookField, Bitboard kingField) -> bool {
+
+		// checking if there isn't pieces betewen king and rook
+		if ((fieldsBetween & occ)) return false;
+
+		// checking if this field is under attack
+		for (int i = start; i < end; i++)
+			if (isCheck(board, i, color)) return false;
+
+		// checking if pieces are on correct fields
+		if ((board.figure[color][ROOK] & rookField) == 0 || (board.figure[color][KING] & kingField) == 0) return false;
+
+		return true;
+	};
+
+	if (color == WHITE)
+	{
+		if (castle == SHORTCASTLE)
+			return check(4, 7, shortWhiteCastle, H1, E1);
+		else
+			return check(2, 5, longWhiteCastle, A1, E1);
+	}
+	else
+	{
+		if (castle == SHORTCASTLE)
+			return check(60, 63, shortBlackCastle, H8, E8);
+		else
+			return check(58, 61, longBlackCastle, A8, E8);
+	}
 }
 
 Bitboard MoveGeneration::attackRookf(Board& board, int index, Color color)
@@ -80,20 +207,20 @@ Bitboard MoveGeneration::attackKingf(Board& board, int index, Color color)
 Bitboard MoveGeneration::attackPawnf(Board& board, int index, Color color)
 {
 	Bitboard attackPawn_v = GamePrepare::attackPawn[color][index];
-	attackPawn_v &= board.occupancy[toggleColor(color)];
 	return attackPawn_v;
 }
 
-void MoveGeneration::addPawnMoves(Board& board, Color color, list<Move>& moveList)
+void MoveGeneration::addPawnMoves(Board& board, Color color, list<Move>& moveList, Bitboard mask, Bitboard pinned)
 {
 	Bitboard figures = board.figure[color][PAWN];
 	Color opponent_color = toggleColor(color);
-
+	figures &= ~pinned;
+	
 	while (figures)
 	{
 		int index_figure = bitScanForward(figures);
-		Bitboard movePawn = GamePrepare::pawnMoves[color][index_figure];
-		Bitboard attacksPawn = attackPawnf(board, index_figure, color);
+		Bitboard movePawn = GamePrepare::pawnMoves[color][index_figure] & mask;
+		Bitboard attacksPawn = attackPawnf(board, index_figure, color) & board.occupancy[toggleColor(color)] & mask;
 
 		// delete if is obsticle before pawn
 		movePawn -= movePawn & (board.occupancy[WHITE] | board.occupancy[BLACK]);
@@ -202,191 +329,77 @@ void MoveGeneration::addPawnMoves(Board& board, Color color, list<Move>& moveLis
 	}
 }
 
-void MoveGeneration::generateMoves(Board& board, Color color, Figure figure_type, list<Move>& moveList)
-{
-	Bitboard figures = board.figure[color][figure_type];
-	while (figures)
-	{
-		int index_figure = bitScanForward(figures);
-		Bitboard attacks = attacks_funcitons[figure_type](board, index_figure, color);
 
-		while (attacks)
-		{
-			int index_attack = bitScanForward(attacks);
-
-			Move m;
-
-			m.move = fields[index_attack] | fields[index_figure];
-			m.type_piece = color * P + figure_type;
-			m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
-			m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
-			m.enPassant = board.onPassantField;
-
-			Color opposit_color = toggleColor(color);
-			if (fields[index_attack] & board.occupancy[opposit_color]) //capture move
-			{
-				m.move2 = fields[index_attack];
-				for (int i = 0; i < P; i++)
-				{
-					if (fields[index_attack] & board.figure[opposit_color][i])
-					{
-						m.type_piece2 = opposit_color * P + i;
-						break;
-					}
-				}
-			}
-
-			moveList.push_back(m);
-
-			attacks &= attacks - 1;
-		}
-		figures &= figures - 1;
-	}
-}
-
-bool MoveGeneration::isLegalCastle(Board& board, Color color, Castle castle)
-{
-	if (!board.castleRights[color][castle]) return false;
-
-	Bitboard occ = board.occupancy[WHITE] | board.occupancy[BLACK];
-
-	auto check = [&](int start, int end, Bitboard fieldsBetween, Bitboard rookField, Bitboard kingField) -> bool {
-
-		// checking if there isn't pieces betewen king and rook
-		if ((fieldsBetween & occ)) return false;
-
-		// checking if this field is under attack
-		for (int i = start; i < end; i++)
-			if (isCheck(board, i, color)) return false;
-
-		// checking if pieces are on correct fields
-		if ((board.figure[color][ROOK] & rookField) == 0 || (board.figure[color][KING] & kingField) == 0) return false;
-
-		return true;
-	};
-
-	if (color == WHITE)
-	{
-		if (castle == SHORTCASTLE)
-			return check(4, 7, shortWhiteCastle, H1, E1);
-		else
-			return check(2, 5, longWhiteCastle, A1, E1);
-	}
-	else
-	{
-		if (castle == SHORTCASTLE)
-			return check(60, 63, shortBlackCastle, H8, E8);
-		else
-			return check(58, 61, longBlackCastle, A8, E8);
-	}
-}
-
-Board* MoveGeneration::boardFromFEN(string fen)
-{
-	// example string: r4rk1/1bpq1ppp/pp2p3/3nP3/PbBP4/2N3B1/1P2QPPP/R2R2K1 w - - 1 18
-
-	// substracting first part from string
-	size_t pos = fen.find(' ');
-	string position = fen.substr(0, pos);
-
-	fen = fen.substr(pos + 1);
-	pos = fen.find(' ');
-	string move = fen.substr(0, pos);
-
-	fen = fen.substr(pos + 1);
-	pos = fen.find(' ');
-	string castle = fen.substr(0, fen.find(' '));
-
-	fen = fen.substr(pos + 1);
-	pos = fen.find(' ');
-	string onPassantField = fen.substr(0, fen.find(' '));
-
-	Board* board = new Board();
-	board->whoToMove = move == "w" ? WHITE : BLACK;
-	board->onPassantField = onPassantField == "-" ? 64 : int(onPassantField[0] - 97) + (int)(onPassantField[1] - '1') * 8;
-	board->castleRights[WHITE][SHORTCASTLE] = castle.find("K") != string::npos;
-	board->castleRights[WHITE][LONGCASTLE] = castle.find("Q") != string::npos;
-	board->castleRights[BLACK][SHORTCASTLE] = castle.find("k") != string::npos;
-	board->castleRights[BLACK][LONGCASTLE] = castle.find("q") != string::npos;
-
-	int row = 7;
-	int column = 0;
-	for (int i = 0; i < position.size(); i++)
-	{
-		switch (position[i])
-		{
-		case 'r':
-			board->figure[BLACK][ROOK] |= fields[row * N + column];
-			break;
-		case 'R':
-			board->figure[WHITE][ROOK] |= fields[row * N + column];
-			break;
-		case 'q':
-			board->figure[BLACK][QUEEN] |= fields[row * N + column];
-			break;
-		case 'Q':
-			board->figure[WHITE][QUEEN] |= fields[row * N + column];
-			break;
-		case 'k':
-			board->figure[BLACK][KING] |= fields[row * N + column];
-			break;
-		case 'K':
-			board->figure[WHITE][KING] |= fields[row * N + column];
-			break;
-		case 'p':
-			board->figure[BLACK][PAWN] |= fields[row * N + column];
-			break;
-		case 'P':
-			board->figure[WHITE][PAWN] |= fields[row * N + column];
-			break;
-		case 'N':
-			board->figure[WHITE][KNIGHT] |= fields[row * N + column];
-			break;
-		case 'n':
-			board->figure[BLACK][KNIGHT] |= fields[row * N + column];
-			break;
-		case 'B':
-			board->figure[WHITE][BISHOP] |= fields[row * N + column];
-			break;
-		case 'b':
-			board->figure[BLACK][BISHOP] |= fields[row * N + column];
-			break;
-		case '/':
-			column = 0;
-			row--;
-			continue;
-			break;
-		default:
-			column += (int)(position[i] - '1');
-			break;
-		}
-		column++;
-	}
-	for (int i = 0; i < 6; i++)
-	{
-		board->occupancy[WHITE] |= board->figure[WHITE][i];
-		board->occupancy[BLACK] |= board->figure[BLACK][i];
-	}
-	return board;
-}
 
 
 
 int MoveGeneration::count = 0;
 string MoveGeneration::output = "";
 
+void MoveGeneration::generateMoves(Board& board, Color color, Figure figure_type, list<Move>& moveList, Bitboard mask, Bitboard pinned)
+{
+	Bitboard figures = board.figure[color][figure_type];
+	
+	figures &= ~pinned;
+	
+	while (figures)
+	{
+		int index_figure = bitScanForward(figures);
+		Bitboard attacks = attacks_funcitons[figure_type](board, index_figure, color) &mask;
+
+		addMovesToList(board,color, figure_type, index_figure, attacks, moveList);
+		
+		figures &= figures - 1;
+	}
+}
+
+void MoveGeneration::addMovesToList(Board& board, Color color, int figure_type, int index_figure, Bitboard attacks, list<Move>& moveList)
+{
+	while (attacks)
+	{
+		int index_attack = bitScanForward(attacks);
+
+		Move m;
+
+		m.move = fields[index_attack] | fields[index_figure];
+		m.type_piece = color * P + figure_type;
+		m.castleRights[SHORTCASTLE] = board.castleRights[color][SHORTCASTLE];
+		m.castleRights[LONGCASTLE] = board.castleRights[color][LONGCASTLE];
+		m.enPassant = board.onPassantField;
+
+		Color opposit_color = toggleColor(color);
+		if (fields[index_attack] & board.occupancy[opposit_color]) //capture move
+		{
+			m.move2 = fields[index_attack];
+			for (int i = 0; i < P; i++)
+			{
+				if (fields[index_attack] & board.figure[opposit_color][i])
+				{
+					m.type_piece2 = opposit_color * P + i;
+					break;
+				}
+			}
+		}
+
+		moveList.push_back(m);
+
+		attacks &= attacks - 1;
+	}
+}
+
+
 int MoveGeneration::generation(Board* board, Color color, int max_depth, int depth)
 {
 	list<Move> legalMoves = list<Move>();
 	if (depth == max_depth)
 	{
-		moveGeneration2(*board, color, legalMoves);
+		generateMovesNew(*board, color, legalMoves);
 		return legalMoves.size();
 	}
 
 
 
-	moveGeneration2(*board, color, legalMoves);
+	generateMovesNew(*board, color, legalMoves);
 
 	int num = 0;
 	for (auto m : legalMoves)
@@ -440,42 +453,139 @@ int MoveGeneration::generation(Board* board, Color color, int max_depth, int dep
 
 
 
-void MoveGeneration::generateMovesNew(Board& board, Color color, list<Move>&)
+void MoveGeneration::generateMovesNew(Board& board, Color color, list<Move>& moveList)
 {
 	// There are three options
 	// 1. double (or more) checks -> king move
 	// 2. check -> king move, capture, cover
 	// 3. no check
 	
-	// checking how many checks are there and creating attack map
 	int num_checks = 0;
 	Bitboard attackMap = 0;
 	Color oponent = toggleColor(color);
 	Bitboard kingField = board.figure[color][KING];
+	Bitboard stopCheckFields = universe;
+	int king_index = bitScanForward(kingField);
 
+	// checking how many checks are there and creating attack map
+	
+	bool queen_was = false;
 	for (int i = 0; i < P; i++)
 	{
+		if (i == QUEEN) continue;
+
 		Bitboard figures = board.figure[oponent][i];
 
 		while(figures)
 		{
 			int index = bitScanForward(figures);
-			Bitboard attackFigure=attacks_funcitons[i](board, index, color);
+			Bitboard attackFigure=attacks_funcitons[i](board, index, oponent);
+			board.occupancy[color] ^= board.figure[color][KING];
+			Bitboard attackFigure2=attacks_funcitons[i](board, index, oponent);
+			board.occupancy[color] ^= board.figure[color][KING];
 			if (attackFigure & kingField)
+			{
+				
 				num_checks++;
-			attackMap |= attackFigure;
+				stopCheckFields = attackFigure& attacks_funcitons[i](board, king_index, color);
+				stopCheckFields |= fields[index];
+			}
+				
+			attackMap |= attackFigure2;
 
 			figures &= figures - 1;
 		}
 	}
+	for (int i = 0; i < 2; i++)
+	{
+		Bitboard figures = board.figure[oponent][QUEEN];
+
+		while (figures)
+		{
+			int index = bitScanForward(figures);
+			Bitboard attackFigure = attacks_funcitons[i](board, index, oponent);
+			board.occupancy[color] ^= board.figure[color][KING];
+			Bitboard attackFigure2 = attacks_funcitons[i](board, index, oponent);
+			board.occupancy[color] ^= board.figure[color][KING];
+			if (attackFigure & kingField)
+			{
+
+				num_checks++;
+				stopCheckFields = attackFigure & attacks_funcitons[i](board, king_index, color);
+				stopCheckFields |= fields[index];
+			}
+
+			attackMap |= attackFigure2;
+
+			figures &= figures - 1;
+		}
+	}
+	
+	
+	// first case -> only king moves
 	if (num_checks >= 2)
 	{
-		Bitboard kingMoves = attackKingf(board, bitScanForward(board.figure[color][KING]), color);
+		Bitboard kingMoves = attackKingf(board, king_index, color);
 		kingMoves -= kingMoves & attackMap;
-
+		addMovesToList(board, color, KING,king_index,kingMoves,moveList);
 	}
-	// looking for pinned figures
-	// generating moves for pinned
+	else
+	{
+		// looking for pinned figures
+		// generating moves for pinned figures
+		Bitboard pinned = 0;
+		for (int i = 0; i < 2; i++)
+		{
+			Bitboard attackRook = attacks_funcitons[i](board, king_index, oponent);
+			Bitboard covering = attackRook & board.occupancy[color];
+			Bitboard previous = (attacks_funcitons[i](board, king_index, color)) & (board.figure[oponent][i] | board.figure[oponent][QUEEN]);
+			
+			while (covering)
+			{
+				int pinned_index = bitScanForward(covering);
+				Bitboard figure_field = fields[pinned_index];
+				// remove from occupancy
+				board.occupancy[color] ^= figure_field;
+				// check if it is a check 
+				Bitboard mask = attacks_funcitons[i](board, king_index, color);
+				if ((mask & (board.figure[oponent][i] | board.figure[oponent][QUEEN])) > previous)
+				{
+					// if check add to pinned
+					pinned |= fields[pinned_index];
+					for (int i = 0; i < P - 1; i++)
+					{
+						if (figure_field & board.figure[color][i])
+						{
+							if(i!=PAWN)
+								
+								addMovesToList(board, color, i, pinned_index, attacks_funcitons[i](board, pinned_index, color) & mask & stopCheckFields, moveList);
+						}
+					}
+
+				}
+				// generate moves that pinned can move
+
+				
+				// add again to occupancy
+				board.occupancy[color] ^= figure_field;
+				covering &= covering - 1;
+			}
+		}
+		
+		// generating moves (not checking if move is legal)
+		vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN};
+		for (auto figure : figures) {
+			generateMoves(board, color, figure, moveList, stopCheckFields, pinned);
+		}
+		generateMoves(board, color, KING, moveList, ~attackMap, pinned);
+		
+		addCastleMove(board, color, moveList);
+		addPawnMoves(board, color, moveList, stopCheckFields, pinned);
+
+
+	
+	}
+	
 }
 
 // returns list of legal moves in given position for the color
@@ -486,11 +596,11 @@ void MoveGeneration::moveGeneration2(Board board, Color color, list<Move>& legal
 	// generating moves (not checking if move is legal)
 	vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN, KING };
 	for (auto figure : figures) {
-		generateMoves(board, color, figure, moves);
+		//generateMoves(board, color, figure, moves);
 	}
 
 	addCastleMove(board, color, moves);
-	addPawnMoves(board, color, moves);
+	//addPawnMoves(board, color, moves);
 
 	// checking is move is legal 
 	// (makes move, checks if there is a check, unmakes move, adds or not to legal moves)

@@ -41,6 +41,7 @@ typedef struct Move
 };
 
 constexpr Bitboard empty = 0ULL;
+constexpr Bitboard universe = 18446744073709551615ULL;
 
 constexpr Bitboard A1 = 1ULL << 0;
 constexpr Bitboard B1 = 1ULL << 1;

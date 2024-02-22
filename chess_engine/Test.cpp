@@ -42,7 +42,7 @@ bool Test::test1()
 {
 
 	bool show=false;
-	int depth = 4;
+	int depth = 2;
 	string fen[] = { 
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" ,
 		"rnbqkbnr/p3ppp1/1p5p/3p4/2BP4/5Q2/PPP2PPP/RNB1K1NR w KQkq - 0 6",
@@ -56,7 +56,7 @@ bool Test::test1()
 		"8/1P1k4/8/3K4/8/7p/8/8 w - - 0 1"
 	};
 	/*string fen[] = { 
-		"rnbqkbnr/pPpppp1p/8/8/8/8/PBpPP2P/RN1QKBNR b KQkq - 1 1" 
+		"rnbqkbnr/p3ppp1/1p5p/3p3Q/2BP4/8/PPP2PPP/RNB1K1NR b KQkq - 0 6" 
 		
 	};*/
 	
@@ -81,7 +81,7 @@ bool Test::test1()
 		double seconds = (double)duration_cast<microseconds>(stop - start).count()/1000000;
 
 		string myEngine = MoveGeneration::output;
-		string stockfish_nodes=compareMoveGeneration(stockfish, myEngine, false);
+		string stockfish_nodes=compareMoveGeneration(stockfish, myEngine, true);
 
 		cout << "Nodes: " << formatWithDots(nodes) << endl;
 		cout << "Seconds: " << seconds << endl;
@@ -102,6 +102,7 @@ bool Test::test1()
 Test::Test()
 {
 	GamePrepare();
+	//test3();
 	test1();
 	//test2();
 }
@@ -112,6 +113,12 @@ int bitScanForward2(Bitboard bb)
 	unsigned long index;
 	_BitScanForward64(&index, bb);
 	return index;
+}
+bool Test::test3()
+{
+	printBitboard(~184467440709551615);
+	printBitboard(184467440709551615);
+	return true;
 }
 bool Test::test2()
 {

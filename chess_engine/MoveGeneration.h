@@ -29,7 +29,7 @@ public:
 	static bool isLegalCastle(Board&, Color, Castle);
 
 	static void moveGeneration2(Board, Color, list<Move>&);
-	static void generateMoves(Board&, Color, Figure, list<Move>&);
+	static void generateMoves(Board&, Color, Figure, list<Move>&, Bitboard mask, Bitboard pinned);
 
 	static void generateMovesNew(Board&, Color, list<Move>&);
 
@@ -41,6 +41,8 @@ public:
 
 private:
 	
+	static void addMovesToList(Board&, Color, int figure_type, int index_figure, Bitboard attacks, list<Move>&);
+
 	// if move is king move or rook move it changes castle rights in board
 	static void changeCastleRights(Board&, Move&);
 
@@ -55,7 +57,7 @@ private:
 	static Bitboard attackKingf(Board&, int index, Color);
 
 	static Bitboard attackPawnf(Board&, int index, Color);
-	static void addPawnMoves(Board&, Color, list<Move>&);
+	static void addPawnMoves(Board&, Color, list<Move>&, Bitboard mask, Bitboard pinned);
 
 	// check if castle is legal and if so, adds to move list
 	static void addCastleMove(Board&, Color, list<Move>&);
