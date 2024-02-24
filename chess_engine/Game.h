@@ -11,16 +11,20 @@
 
 #include "variables.h"
 #include "GamePrepare.h"
+#include "MoveGeneration.h"
+#include "Functions.h"
 
 
 class Game
 {
 public:
 	
-	void startGame();
-	
+	static void startGame();
+	static float Evaluate(Board& board);
+	static Move PickBestMove(Board&, Color);
+	static float AlphaBetaPrunning(Board&, Color, float alpha, float beta, int maxDepth, int depth=1);
 private:
-
+	static int num;
 };
 
 

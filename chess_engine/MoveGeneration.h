@@ -12,6 +12,7 @@
 
 #include "variables.h"
 #include "GamePrepare.h"
+#include "Functions.h"
 
 
 class MoveGeneration

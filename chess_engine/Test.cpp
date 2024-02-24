@@ -43,7 +43,8 @@ bool Test::test1()
 
 	bool show=false;
 	int depth = 4;
-	string fen[] = { 
+	/*string fen[] = { 
+		"2k5/7R/8/8/1Q6/8/8/3K4 b - - 0 1",
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" ,
 		"rnbqkbnr/p3ppp1/1p5p/3p4/2BP4/5Q2/PPP2PPP/RNB1K1NR w KQkq - 0 6",
 		"rnbqkbnr/pPpppp1p/8/8/8/8/P1pPP2P/RNBQKBNR w KQkq - 0 1",
@@ -55,11 +56,11 @@ bool Test::test1()
 		"r3k2r/p1pppppp/2np1bn1/3P4/1Q1q3P/1NB2N2/PPP2BPP/R3K2R w KQkq - 0 1",
 		"8/1P1k4/8/3K4/8/7p/8/8 w - - 0 1",
 		"8/8/8/8/R2pk3/8/2P5/2K5 w - - 0 1",
-	};
-	/*string fen[] = { 
-		"rnb1kbnr/pppppppp/3q4/3P4/4Q2P/8/PPPK1PPP/RNB2BNR b kq - 0 1" 
-		
 	};*/
+	string fen[] = { 
+		"7r/1p4pp/3kpn2/pR6/4p3/P7/1P4PP/2R3K1 w - - 0 26" 
+		
+	};
 	
 	long sumN = 0;
 	double sumT = 0;
@@ -117,8 +118,8 @@ int bitScanForward2(Bitboard bb)
 }
 bool Test::test3()
 {
-	printBitboard(~184467440709551615);
-	printBitboard(184467440709551615);
+	Board* b = MoveGeneration::boardFromFEN("rnb1kbnr/pppppppp/8/8/8/8/PPPPPPPP/RN1QKBNR w KQkq - 0 1");
+	cout << Game::Evaluate(*b);
 	return true;
 }
 bool Test::test2()

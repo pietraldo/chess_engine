@@ -3,6 +3,7 @@
 #include <iostream>
 #include "MoveGeneration.h"
 #include "ReadyChessEngine.h"
+#include "Game.h"
 
 class Test
 {

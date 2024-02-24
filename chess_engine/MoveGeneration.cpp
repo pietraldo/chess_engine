@@ -1,11 +1,6 @@
 #include "MoveGeneration.h"
 
-int bitScanForward(Bitboard bb)
-{
-	unsigned long index;
-	_BitScanForward64(&index, bb);
-	return index;
-}
+
 
 Board* MoveGeneration::boardFromFEN(string fen)
 {

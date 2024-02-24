@@ -1,5 +1,24 @@
 #include "Functions.h"
 
+int bitScanForward(Bitboard bb)
+{
+	unsigned long index;
+	_BitScanForward64(&index, bb);
+	return index;
+}
+
+std::ostream& operator<<(std::ostream& os, const Move& m) {
+	int one = bitScanForward(m.move);
+	int two = bitScanForward(m.move ^ fields[one]);
+
+	char a = (char)(two % 8 + 97);
+	int b = (int)(two / 8) + 1;
+	char c = (char)(one % 8 + 97);
+	int d = (int)(one / 8) + 1;
+
+	cout<< a + to_string(b) + c + to_string(d);
+	return os;
+}
 
 void printBitboard(Bitboard board)
 {

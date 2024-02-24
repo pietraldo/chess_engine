@@ -33,7 +33,9 @@ int main()
 	//printBoard(*board);
 	 //cout<<Game::generation(board,board->whoToMove,5)<<endl;
 	//printBoard(*board);
-	Test::Test();
+	//Test::Test();
+
+	Game::startGame();
 }
 
 

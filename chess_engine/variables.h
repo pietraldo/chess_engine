@@ -24,6 +24,22 @@ typedef struct Board
 	bool castleRights[2][2];
 	int onPassantField; // index o field 0-63
 	Color whoToMove; // who's turn is to move
+
+	Board() =default;
+	Board(const Board& b)
+	{
+		for (int i = 0; i < P; i++)
+			for (int j = 0; j < 2; j++)
+				figure[j][i] = b.figure[j][i];
+		occupancy[0] = b.occupancy[0];
+		occupancy[1] = b.occupancy[1];
+		castleRights[0][0] = b.castleRights[0][0];
+		castleRights[0][1] = b.castleRights[0][1];
+		castleRights[1][0] = b.castleRights[1][0];
+		castleRights[1][1] = b.castleRights[1][1];
+		onPassantField = b.onPassantField;
+		whoToMove = b.whoToMove;
+	}
 };
 
 
