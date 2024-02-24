@@ -6,13 +6,15 @@
 #include <list>
 #include <intrin.h>
 #include <string>
-
 #include <iomanip> 
+#include <algorithm> // for sort
+#include <utility> // for pair
 
 #include "variables.h"
 #include "GamePrepare.h"
 #include "MoveGeneration.h"
 #include "Functions.h"
+
 
 
 class Game
@@ -25,6 +27,8 @@ public:
 	static float AlphaBetaPrunning(Board&, Color, float alpha, float beta, int maxDepth, int depth=1);
 private:
 	static int num;
+	static void sortMovesByEval(vector<float>& evals, vector<list<Move>::iterator>& moves);
+	
 };
 
 
