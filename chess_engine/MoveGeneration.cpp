@@ -603,34 +603,6 @@ void MoveGeneration::generateMovesNew(Board& board, Color color, list<Move>& mov
 }
 
 // returns list of legal moves in given position for the color
-void MoveGeneration::moveGeneration2(Board board, Color color, list<Move>& legalMoves)
-{
-	list<Move> moves = list<Move>();
-
-	// generating moves (not checking if move is legal)
-	vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN, KING };
-	for (auto figure : figures) {
-		//generateMoves(board, color, figure, moves);
-	}
-
-	addCastleMove(board, color, moves);
-	//addPawnMoves(board, color, moves);
-
-	// checking is move is legal 
-	// (makes move, checks if there is a check, unmakes move, adds or not to legal moves)
-	while (!moves.empty())
-	{
-		Move mm = moves.front();
-		moves.pop_front();
-
-		makeMove(board, mm);
-
-		if (!isCheck(board, log2(board.figure[color][KING]), color))
-			legalMoves.push_back(mm);
-
-		unmakeMove(board, mm);
-	}
-}
 
 void MoveGeneration::addCastleMove(Board& board, Color color, list<Move>& moveList)
 {
