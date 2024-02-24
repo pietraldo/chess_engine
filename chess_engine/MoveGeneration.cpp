@@ -104,7 +104,7 @@ bool MoveGeneration::isCheck(Board board, int kingField, Color kingColor)
 	// rook
 	Bitboard attackRook = attackRookf(board, kingField, kingColor);
 	if ((attackRook & board.figure[oppositeColor][ROOK]) != 0 || (attackRook & board.figure[oppositeColor][QUEEN]) != 0) return true;
-
+	
 	// bishop
 	Bitboard attackBishop = attackBishopf(board, kingField, kingColor);
 	if (((attackBishop & board.figure[oppositeColor][BISHOP]) != 0) || ((attackBishop & board.figure[oppositeColor][QUEEN]) != 0)) return true;
@@ -167,7 +167,7 @@ Bitboard MoveGeneration::attackRookf(Board& board, int index, Color color)
 	Bitboard attackRook = GamePrepare::attackRook[index][(mask * GamePrepare::magicRook[index]) >> (M - GamePrepare::rookShifts[index])];
 
 	// substracting attack on own piece
-	attackRook -= attackRook & board.occupancy[color];
+	//attackRook -= attackRook & board.occupancy[color];
 	return attackRook;
 }
 
@@ -179,7 +179,7 @@ Bitboard MoveGeneration::attackBishopf(Board& board, int index, Color color)
 	// getting attacks
 	Bitboard attackBishop = GamePrepare::attacBishop[index][(mask * GamePrepare::magicBishop[index]) >> (M - GamePrepare::bishopShifts[index])];
 	// substracting attack on own piece
-	attackBishop -= attackBishop & board.occupancy[color];
+	//attackBishop -= attackBishop & board.occupancy[color];
 	return attackBishop;
 }
 
@@ -192,7 +192,7 @@ Bitboard MoveGeneration::attackKnightf(Board& board, int index, Color color)
 {
 	Bitboard attackKnight = GamePrepare::attackKnight[index];
 	// substracting attack on own piece
-	attackKnight -= attackKnight & board.occupancy[color];
+	/*attackKnight -= attackKnight & board.occupancy[color];*/
 	return attackKnight;
 }
 
@@ -200,7 +200,7 @@ Bitboard MoveGeneration::attackKingf(Board& board, int index, Color color)
 {
 	Bitboard attackKing = GamePrepare::attackKing[index];
 	// substracting attack on own piece
-	attackKing -= attackKing & board.occupancy[color];
+	//attackKing -= attackKing & board.occupancy[color];
 	return attackKing;
 }
 
@@ -219,17 +219,18 @@ void MoveGeneration::addPawnMoves(Board& board, Color color, list<Move>& moveLis
 	while (figures)
 	{
 		int index_figure = bitScanForward(figures);
-		Bitboard movePawn = GamePrepare::pawnMoves[color][index_figure] & mask;
+		Bitboard movePawn = GamePrepare::pawnMoves[color][index_figure];
 		Bitboard attacksPawn = attackPawnf(board, index_figure, color) & board.occupancy[toggleColor(color)] & mask;
-
+		
 		// delete if is obsticle before pawn
 		movePawn -= movePawn & (board.occupancy[WHITE] | board.occupancy[BLACK]);
+		
 		// delete move of two fields because on first is obsticle
 		if (abs(index_figure - log2(movePawn)) == 16)
 			movePawn = 0;
+		movePawn &= mask;
 
-
-		//enPassant capture
+		// enPassant capture
 		if ((fields[board.onPassantField] & GamePrepare::attackPawn[color][index_figure]) != 0)
 		{
 			Move m;
@@ -243,7 +244,13 @@ void MoveGeneration::addPawnMoves(Board& board, Color color, list<Move>& moveLis
 			else
 				m.move2 = fields[board.onPassantField + 8];
 			m.enPassant = board.onPassantField;
-			moveList.push_back(m);
+			
+			//printBitboard(board.occupancy[color]);
+			makeMove(board, m);
+			//printBitboard(board.occupancy[color]);
+			if(!isCheck(board, bitScanForward(board.figure[color][KING]), color))
+				moveList.push_back(m);
+			unmakeMove(board, m);
 		}
 
 
@@ -291,6 +298,7 @@ void MoveGeneration::addPawnMoves(Board& board, Color color, list<Move>& moveLis
 			// substracting added move
 			attacksPawn &= attacksPawn - 1;
 		}
+		
 		while (movePawn)
 		{
 			// geting index of field that rook is attacking
@@ -336,16 +344,17 @@ void MoveGeneration::addPawnMoves(Board& board, Color color, list<Move>& moveLis
 int MoveGeneration::count = 0;
 string MoveGeneration::output = "";
 
-void MoveGeneration::generateMoves(Board& board, Color color, Figure figure_type, list<Move>& moveList, Bitboard mask, Bitboard pinned)
+void MoveGeneration::generateMoves(Board& board, Color color, Figure figure_type, list<Move>& moveList, Bitboard stopCheckFields, Bitboard pinned)
 {
 	Bitboard figures = board.figure[color][figure_type];
-	
-	figures &= ~pinned;
+	 
+	figures &= ~pinned; // not pinned figures
 	
 	while (figures)
 	{
 		int index_figure = bitScanForward(figures);
-		Bitboard attacks = attacks_funcitons[figure_type](board, index_figure, color) &mask;
+		Bitboard attacks = attacks_funcitons[figure_type](board, index_figure, color) & stopCheckFields;
+		attacks -= attacks & board.occupancy[color];
 
 		addMovesToList(board,color, figure_type, index_figure, attacks, moveList);
 		
@@ -453,6 +462,7 @@ int MoveGeneration::generation(Board* board, Color color, int max_depth, int dep
 
 
 
+
 void MoveGeneration::generateMovesNew(Board& board, Color color, list<Move>& moveList)
 {
 	// There are three options
@@ -462,63 +472,47 @@ void MoveGeneration::generateMovesNew(Board& board, Color color, list<Move>& mov
 	
 	int num_checks = 0;
 	Bitboard attackMap = 0;
+	Bitboard stopCheckFields = universe;
 	Color oponent = toggleColor(color);
 	Bitboard kingField = board.figure[color][KING];
-	Bitboard stopCheckFields = universe;
 	int king_index = bitScanForward(kingField);
 
+
 	// checking how many checks are there and creating attack map
-	
-	bool queen_was = false;
-	for (int i = 0; i < P; i++)
+	auto addAttack = [&](Bitboard figures, int figure_type)
 	{
-		if (i == QUEEN) continue;
-
-		Bitboard figures = board.figure[oponent][i];
-
-		while(figures)
-		{
-			int index = bitScanForward(figures);
-			Bitboard attackFigure=attacks_funcitons[i](board, index, oponent);
-			board.occupancy[color] ^= board.figure[color][KING];
-			Bitboard attackFigure2=attacks_funcitons[i](board, index, oponent);
-			board.occupancy[color] ^= board.figure[color][KING];
-			if (attackFigure & kingField)
-			{
-				
-				num_checks++;
-				stopCheckFields = attackFigure& attacks_funcitons[i](board, king_index, color);
-				stopCheckFields |= fields[index];
-			}
-				
-			attackMap |= attackFigure2;
-
-			figures &= figures - 1;
-		}
-	}
-	for (int i = 0; i < 2; i++)
-	{
-		Bitboard figures = board.figure[oponent][QUEEN];
-
 		while (figures)
 		{
 			int index = bitScanForward(figures);
-			Bitboard attackFigure = attacks_funcitons[i](board, index, oponent);
+			Bitboard attackFigure = attacks_funcitons[figure_type](board, index, oponent);
 			board.occupancy[color] ^= board.figure[color][KING];
-			Bitboard attackFigure2 = attacks_funcitons[i](board, index, oponent);
+			Bitboard attackFigure2 = attacks_funcitons[figure_type](board, index, oponent);
+			attackMap |= attackFigure2;
 			board.occupancy[color] ^= board.figure[color][KING];
+			
+			// if there is check
 			if (attackFigure & kingField)
 			{
-
 				num_checks++;
-				stopCheckFields = attackFigure & attacks_funcitons[i](board, king_index, color);
-				stopCheckFields |= fields[index];
+				stopCheckFields = attackFigure & attacks_funcitons[figure_type](board, king_index, color); 
+				stopCheckFields |=fields[index]; 
 			}
-
-			attackMap |= attackFigure2;
 
 			figures &= figures - 1;
 		}
+	};
+	for (int i = 0; i < P; i++)
+	{
+		if (i == QUEEN)
+		{
+			Bitboard figures = board.figure[oponent][QUEEN];
+			addAttack(figures, ROOK);
+			addAttack(figures, BISHOP);
+			continue;
+		}
+
+		Bitboard figures = board.figure[oponent][i];
+		addAttack(figures,i);
 	}
 	
 	
@@ -527,19 +521,27 @@ void MoveGeneration::generateMovesNew(Board& board, Color color, list<Move>& mov
 	{
 		Bitboard kingMoves = attackKingf(board, king_index, color);
 		kingMoves -= kingMoves & attackMap;
+		kingMoves-= kingMoves & board.occupancy[color];
 		addMovesToList(board, color, KING,king_index,kingMoves,moveList);
 	}
 	else
 	{
 		// looking for pinned figures
 		// generating moves for pinned figures
-		Bitboard pinned = 0;
+		
+
+		Bitboard pinned = 0; // figures that are pinned
+		// figures can be pinned by rook, bishop or queen
+		// 1. place rook or bishop in king's square and detect which figures are protecting king
+		// 2. delete this figure and now check if there is a bishop or rook attacking if so this deleted figure is pinned
 		for (int i = 0; i < 2; i++)
 		{
-			Bitboard attackRook = attacks_funcitons[i](board, king_index, oponent);
-			Bitboard covering = attackRook & board.occupancy[color];
+			Bitboard attackFields = attacks_funcitons[i](board, king_index, oponent);
+			Bitboard covering = attackFields & board.occupancy[color];
 			Bitboard previous = (attacks_funcitons[i](board, king_index, color)) & (board.figure[oponent][i] | board.figure[oponent][QUEEN]);
 			
+			Bitboard pinningFigures = board.figure[oponent][i] | board.figure[oponent][QUEEN];
+
 			while (covering)
 			{
 				int pinned_index = bitScanForward(covering);
@@ -547,32 +549,47 @@ void MoveGeneration::generateMovesNew(Board& board, Color color, list<Move>& mov
 				// remove from occupancy
 				board.occupancy[color] ^= figure_field;
 				// check if it is a check 
-				Bitboard mask = attacks_funcitons[i](board, king_index, color);
-				if ((mask & (board.figure[oponent][i] | board.figure[oponent][QUEEN])) > previous)
+				Bitboard pinned_figure_legal_moves = attacks_funcitons[i](board, king_index, color);
+				if ((pinned_figure_legal_moves & pinningFigures) > previous)
 				{
-					// if check add to pinned
+					int pinningFigureIndex = bitScanForward((pinned_figure_legal_moves&pinningFigures) - previous);
+					pinned_figure_legal_moves&= attacks_funcitons[i](board, pinningFigureIndex, color);
+					pinned_figure_legal_moves |= fields[pinningFigureIndex];
+					// without this figure it is check so...
+					// add to pinned 
 					pinned |= fields[pinned_index];
-					for (int i = 0; i < P - 1; i++)
+					board.occupancy[color] ^= figure_field;
+					for (int j = 0; j < P - 1; j++)
 					{
-						if (figure_field & board.figure[color][i])
+						if (figure_field & board.figure[color][j])
 						{
-							if(i!=PAWN)
+							if (j != PAWN)
+							{
+								Bitboard legalMovesFigure = attacks_funcitons[j](board, pinned_index, color) & pinned_figure_legal_moves & stopCheckFields;
+								legalMovesFigure -= legalMovesFigure & board.occupancy[color];
+								addMovesToList(board, color, j, pinned_index, legalMovesFigure, moveList);
+							}
+							else
+							{
+								addPawnMoves(board, color, moveList, stopCheckFields&pinned_figure_legal_moves, ~pinned);
+							}
 								
-								addMovesToList(board, color, i, pinned_index, attacks_funcitons[i](board, pinned_index, color) & mask & stopCheckFields, moveList);
 						}
 					}
 
 				}
-				// generate moves that pinned can move
-
+				else
+				{
+					board.occupancy[color] ^= figure_field;
+				}
 				
-				// add again to occupancy
-				board.occupancy[color] ^= figure_field;
+				
 				covering &= covering - 1;
 			}
+			
 		}
 		
-		// generating moves (not checking if move is legal)
+		// generating moves of figures that are not pinned and this figures can go only for fields that are in stop check fields
 		vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN};
 		for (auto figure : figures) {
 			generateMoves(board, color, figure, moveList, stopCheckFields, pinned);
@@ -581,9 +598,6 @@ void MoveGeneration::generateMovesNew(Board& board, Color color, list<Move>& mov
 		
 		addCastleMove(board, color, moveList);
 		addPawnMoves(board, color, moveList, stopCheckFields, pinned);
-
-
-	
 	}
 	
 }

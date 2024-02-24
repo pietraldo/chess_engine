@@ -7,6 +7,7 @@
 #include <intrin.h>
 #include <string>
 
+
 #include <iomanip> 
 
 #include "variables.h"
@@ -34,6 +35,8 @@ public:
 	static void generateMovesNew(Board&, Color, list<Move>&);
 
 
+
+
 	static int generation(Board* board, Color color, int max_deth, int depth = 1);
 
 
@@ -42,6 +45,8 @@ public:
 private:
 	
 	static void addMovesToList(Board&, Color, int figure_type, int index_figure, Bitboard attacks, list<Move>&);
+	static void addMovesToListPawns(Board&, Color, int figure_type, int index_figure, Bitboard attacks, list<Move>&);
+
 
 	// if move is king move or rook move it changes castle rights in board
 	static void changeCastleRights(Board&, Move&);
