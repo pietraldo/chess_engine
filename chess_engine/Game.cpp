@@ -9,7 +9,7 @@ void Game::startGame()
 	/*list<Move> moveList = list<Move>();
 	MoveGeneration::generateMovesNew(*board,BLACK, moveList);*/
 
-	cout<<"Best move: "<<PickBestMove(*board, WHITE);
+	cout<<"Best move: "<<PickBestMove(*board, WHITE,4);
 	cout << " " << num<<endl;
 
 	num = 0;
@@ -17,6 +17,8 @@ void Game::startGame()
 	cout << " " << num<<endl;
 }
 int Game::num = 0;
+std::chrono::steady_clock::time_point Game::start;
+int Game::maxTime;
 
 float Game::Evaluate(Board& board)
 {
@@ -41,9 +43,7 @@ float Game::Evaluate(Board& board)
 	return eval;
 }
 
-
-int maxDepth = 5;
-Move Game::PickBestMove(Board& board, Color color)
+Move Game::PickBestMove(Board& board, Color color, int maxDepth)
 {
 	
 	list<Move> moveList = list<Move>();

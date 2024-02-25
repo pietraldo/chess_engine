@@ -140,6 +140,7 @@
     <ClCompile Include="prog.cpp" />
     <ClCompile Include="ReadyChessEngine.cpp" />
     <ClCompile Include="Test.cpp" />
+    <ClCompile Include="UciTranslator.cpp" />
     <ClCompile Include="variables.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +151,7 @@
     <ClInclude Include="MoveGeneration.h" />
     <ClInclude Include="ReadyChessEngine.h" />
     <ClInclude Include="Test.h" />
+    <ClInclude Include="UciTranslator.h" />
     <ClInclude Include="variables.h" />
   </ItemGroup>
   <ItemGroup>

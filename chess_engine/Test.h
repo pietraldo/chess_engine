@@ -4,6 +4,7 @@
 #include "MoveGeneration.h"
 #include "ReadyChessEngine.h"
 #include "Game.h"
+#include "UciTranslator.h"
 
 class Test
 {
@@ -15,6 +16,7 @@ private:
 	bool test3();
 	bool test4();
 	bool test5();
+	bool test6();
 
 	string compareMoveGeneration(string stockfish, string myEngine, bool);
 };

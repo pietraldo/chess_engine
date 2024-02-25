@@ -452,6 +452,35 @@ int MoveGeneration::generation(Board* board, Color color, int max_depth, int dep
 	return num;
 }
 
+
+int MoveGeneration::goPerft(Board& board, Color color, int max_depth, int depth)
+{
+	list<Move> legalMoves = list<Move>();
+	if (depth == max_depth)
+	{
+		generateMovesNew(board, color, legalMoves);
+		return legalMoves.size();
+	}
+
+	generateMovesNew(board, color, legalMoves);
+
+	int num = 0;
+	for (auto m : legalMoves)
+	{
+		makeMove(board, m);
+		int moveNum= goPerft(board, toggleColor(color), max_depth, depth + 1);
+		num += moveNum;
+		unmakeMove(board, m);
+		
+		if (depth == 1)
+		{
+			cout<<UciTranslator::TranslateMove(board, m)<<": "<<moveNum<<endl;
+		}
+
+	}
+	return num;
+}
+
 // TODO: except checking all checks in castle rights do attack board
 
 

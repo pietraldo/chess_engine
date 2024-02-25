@@ -13,6 +13,7 @@
 #include "variables.h"
 #include "GamePrepare.h"
 #include "Functions.h"
+#include "UciTranslator.h"
 
 
 class MoveGeneration
@@ -40,6 +41,8 @@ public:
 	static void generateOnlyCaptureMoves2(Board&, Color, list<Move>&);
 
 	static int generation(Board* board, Color color, int max_deth, int depth = 1);
+
+	static int goPerft(Board& board, Color color, int max_depth, int depth=1);
 
 
 	static Board* boardFromFEN(string fen);

@@ -106,9 +106,10 @@ Test::Test()
 	GamePrepare();
 	//test3();
 	//test1();
-	test4();
+	//test4();
 	//test5();
 	//test2();
+	test6();
 }
 
 
@@ -136,7 +137,7 @@ bool Test::test4()
 	MoveGeneration::generateMovesNew(*board,BLACK, moveList);*/
 
 	auto start = high_resolution_clock::now();
-	cout << "Best move: " << Game::PickBestMove(*board, board->whoToMove);
+	cout << "Best move: " << Game::PickBestMove(*board, board->whoToMove, 4);
 	auto stop = high_resolution_clock::now();
 	double seconds = (double)duration_cast<microseconds>(stop - start).count() / 1000000;
 	
@@ -176,6 +177,27 @@ bool Test::test5()
 	return true;
 }
 
+bool Test::test6()
+{
+	GamePrepare();
+	Board* board = MoveGeneration::boardFromFEN("3qr1k1/1b2bp1p/p3pnpB/1p6/2rPN3/P6Q/1P3PPP/1B1RR1K1 w - - 6 21");
+	printBoard(*board);
+
+	UciTranslator tr = UciTranslator();
+	tr.readBoard(*board);
+
+	auto start = high_resolution_clock::now();
+	int nodes=tr.goPerft(4);
+	auto stop = high_resolution_clock::now();
+	auto seconds = (double)duration_cast<microseconds>(stop - start).count() / 1000000;
+	cout << "Time: " << seconds << endl << endl;
+	cout << "Nodes: " << nodes << endl << endl;
+	cout << "Nodes/sec: " << nodes/seconds << endl << endl;
+
+	tr.getBestMove(3);
+
+	return true;
+}
 
 bool Test::test2()
 {
