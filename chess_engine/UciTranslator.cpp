@@ -63,6 +63,7 @@ void UciTranslator::getBestMove(int depth, int maxTime)
 	Game::maxTime = maxTime;
 	Game::start = start;
 	Move bestMove=Game::PickBestMove(board, board.whoToMove,depth);
+	
 
 	auto stop = std::chrono::high_resolution_clock::now();
 	double seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000000;
@@ -70,7 +71,7 @@ void UciTranslator::getBestMove(int depth, int maxTime)
 	cout << " " << Game::num << endl;
 	cout << "Time: " << seconds << endl << endl;
 
-	cout << "bestmove: " << TranslateMove(board,bestMove)<<endl;
+	cout << "bestmove " << TranslateMove(board,bestMove)<<endl;
 }
 
 void UciTranslator::startComunication()
@@ -89,8 +90,14 @@ void UciTranslator::startComunication()
 			cin >> command;
 			if (command == "fen")
 			{
-				cin >> command;
-				Board* b = MoveGeneration::boardFromFEN(command);
+				string fen = "";
+				for (int i = 0; i < 6; i++)
+				{
+					cin >> command;
+					fen += command+" ";
+				}
+				
+				Board* b = MoveGeneration::boardFromFEN(fen);
 				tr.readBoard(*b);
 			}
 		}
@@ -113,10 +120,19 @@ void UciTranslator::startComunication()
 				int depth = stoi(command);
 				cout << depth << endl;
 				tr.getBestMove(depth,30);
+				tr.quit();
 			}
+		}
+		else if (command == "quit")
+		{
+			tr.quit();
 		}
 
 	} while (true);
 
 	
+}
+void UciTranslator::quit()
+{
+	exit(0);
 }

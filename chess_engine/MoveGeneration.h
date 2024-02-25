@@ -47,7 +47,7 @@ public:
 
 	static Board* boardFromFEN(string fen);
 
-private:
+
 	
 	static void addMovesToList(Board&, Color, int figure_type, int index_figure, Bitboard attacks, list<Move>&);
 	

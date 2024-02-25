@@ -20,25 +20,167 @@ int Game::num = 0;
 std::chrono::steady_clock::time_point Game::start;
 int Game::maxTime;
 
+constexpr int pawnsEval2[64] = { 
+	0,  0,  0,  0,  0,  0,  0,  0,
+	50, 50, 50, 50, 50, 50, 50, 50,
+	10, 10, 20, 30, 30, 20, 10, 10,
+	5,  5, 10, 25, 25, 10,  5,  5,
+	0,  0,  0, 20, 20,  0,  0,  0,
+	5, -5,-10,  0,  0,-10, -5,  5,
+	5, 10, 10,-20,-20, 10, 10,  5,
+	0,  0,  0,  0,  0,  0,  0,  0 };
+constexpr int pawnsEval[64] = { 
+	0,  0,  0,  0,  0,  0,  0,  0,
+	5, 10, 10,-20,-20, 10, 10,  5,
+	5, -5,-10,  0,  0,-10, -5,  5,
+	0,  0,  0, 20, 20,  0,  0,  0,
+	5,  5, 10, 25, 25, 10,  5,  5,
+	10, 10, 20, 30, 30, 20, 10, 10,
+	50, 50, 50, 50, 50, 50, 50, 50,
+	0,  0,  0,  0,  0,  0,  0,  0 };
+
+
+constexpr int knightsEval[64] = {
+
+	-50,-40,-30,-30,-30,-30,-40,-50,
+	-40,-20,  0,  0,  0,  0,-20,-40,
+	-30,  0, 10, 15, 15, 10,  0,-30,
+	-30,  5, 15, 20, 20, 15,  5,-30,
+	-30,  0, 15, 20, 20, 15,  0,-30,
+	-30,  5, 10, 15, 15, 10,  5,-30,
+	-40,-20,  0,  5,  5,  0,-20,-40,
+	-50,-40,-30,-30,-30,-30,-40,-50
+};
+constexpr int rooksEval2[64] = {
+
+	-20,-10,-10,-10,-10,-10,-10,-20,
+	-10,  0,  0,  0,  0,  0,  0,-10,
+	-10,  0,  5, 10, 10,  5,  0,-10,
+	-10,  5,  5, 10, 10,  5,  5,-10,
+	-10,  0, 10, 10, 10, 10,  0,-10,
+	-10, 10, 10, 10, 10, 10, 10,-10,
+	-10,  5,  0,  0,  0,  0,  5,-10,
+	-20,-10,-10,-10,-10,-10,-10,-20
+};
+
+constexpr int rooksEval[64] = {
+
+	-20,-10,-10,-10,-10,-10,-10,-20,
+	-10,  5,  0,  0,  0,  0,  5,-10,
+	-10, 10, 10, 10, 10, 10, 10,-10,
+	-10,  0, 10, 10, 10, 10,  0,-10,
+	-10,  5,  5, 10, 10,  5,  5,-10,
+	-10,  0,  5, 10, 10,  5,  0,-10,
+	-10,  0,  0,  0,  0,  0,  0,-10,
+	-20,-10,-10,-10,-10,-10,-10,-20
+};
+
+constexpr int queensEval[64] = {
+
+	-20,-10,-10, -5, -5,-10,-10,-20,
+	-10,  0,  0,  0,  0,  0,  0,-10,
+	-10,  0,  5,  5,  5,  5,  0,-10,
+	 -5,  0,  5,  5,  5,  5,  0, -5,
+	  0,  0,  5,  5,  5,  5,  0, -5,
+	-10,  5,  5,  5,  5,  5,  0,-10,
+	-10,  0,  5,  0,  0,  0,  0,-10,
+	-20,-10,-10, -5, -5,-10,-10,-20
+};
+constexpr int bishopsEval2[64] = {
+
+	-20,-10,-10,-10,-10,-10,-10,-20,
+	-10,  0,  0,  0,  0,  0,  0,-10,
+	-10,  0,  5, 10, 10,  5,  0,-10,
+	-10,  5,  5, 10, 10,  5,  5,-10,
+	-10,  0, 10, 10, 10, 10,  0,-10,
+	-10, 10, 10, 10, 10, 10, 10,-10,
+	-10,  5,  0,  0,  0,  0,  5,-10,
+	-20,-10,-10,-10,-10,-10,-10,-20
+};
+constexpr int bishopsEval[64] = {
+
+	-20,-10,-10,-10,-10,-10,-10,-20,
+	-10,  5,  0,  0,  0,  0,  5,-10,
+	-10, 10, 10, 10, 10, 10, 10,-10,
+	-10,  0, 10, 10, 10, 10,  0,-10,
+	-10,  5,  5, 10, 10,  5,  5,-10,
+	-10,  0,  5, 10, 10,  5,  0,-10,
+	-10,  0,  0,  0,  0,  0,  0,-10,
+	-20,-10,-10,-10,-10,-10,-10,-20
+
+};
+constexpr int kingsEval2[64] = {
+
+	-30,-40,-40,-50,-50,-40,-40,-30,
+	-30,-40,-40,-50,-50,-40,-40,-30,
+	-30,-40,-40,-50,-50,-40,-40,-30,
+	-30,-40,-40,-50,-50,-40,-40,-30,
+	-20,-30,-30,-40,-40,-30,-30,-20,
+	-10,-20,-20,-20,-20,-20,-20,-10,
+	 20, 20,  0,  0,  0,  0, 20, 20,
+	 20, 30, 10,  0,  0, 10, 30, 20
+};
+
+constexpr int kingsEval[64] = {
+
+	20, 30, 10,  0,  0, 10, 30, 20,
+	20, 20,  0,  0,  0,  0, 20, 20,
+	-10,-20,-20,-20,-20,-20,-20,-10,
+	-20,-30,-30,-40,-40,-30,-30,-20,
+	-30,-40,-40,-50,-50,-40,-40,-30,
+	-30,-40,-40,-50,-50,-40,-40,-30,
+	-30,-40,-40,-50,-50,-40,-40,-30,
+	-30,-40,-40,-50,-50,-40,-40,-30
+};
+
+constexpr const int* evalsBoards[12] = {
+	rooksEval,
+	bishopsEval,
+	knightsEval,
+	pawnsEval,
+	queensEval,
+	kingsEval,
+	rooksEval,
+	bishopsEval,
+	knightsEval,
+	pawnsEval2,
+	queensEval,
+	kingsEval2
+};
+
 float Game::Evaluate(Board& board)
 {
 	num++;
 	float eval = 0;
-	int values[] = {5,3,3,1,9,10000};
+	int values[] = {5000,3000,3000,1000,9000,100000};
 	
 	int color = 1;
+	Color c = WHITE;
 	for (int j = 0; j < 2; j++)
 	{
+		Bitboard activity = 0;
 		for (int i = 0; i < P; i++)
 		{
 			Bitboard figures = board.figure[j][i];
 			while (figures)
 			{
+				int index = bitScanForward(figures);
+				eval += evalsBoards[i+j*6][index]*color;
+				activity|=MoveGeneration::attacks_funcitons[i](board, index, c);
+
 				figures &= figures - 1;
 				eval += values[i] *color;
 			}
 		}
+
+		while (activity)
+		{
+			activity &= activity - 1;
+			eval += color*4;
+		}
+
 		color *= -1;
+		c = BLACK;
 	}
 	return eval;
 }
@@ -80,14 +222,14 @@ Move Game::PickBestMove(Board& board, Color color, int maxDepth)
 	Move bestMoveLastDepth;
 	float bestEval;
 
-	float alpha=-99999;
-	float beta=99999;
+	float alpha=-9999999;
+	float beta= 9999999;
 
 	for (int i = 1; i <= maxDepth; i++)
 	{
 		if (color == WHITE) // maxinmazing
 		{
-			bestEval = -99999;
+			bestEval = -9999999;
 			sort(combined.begin(), combined.end(), compareWhite);
 			alpha = bestEval;
 			for (int j=0; j<combined.size(); j++)
@@ -122,7 +264,7 @@ Move Game::PickBestMove(Board& board, Color color, int maxDepth)
 		}
 		else // minimazing
 		{
-			bestEval = 99999;
+			bestEval = 9999999;
 			sort(combined.begin(), combined.end(), compareBlack);
 			beta = bestEval;
 			for (int j = 0; j < combined.size(); j++)
@@ -229,13 +371,13 @@ float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta
 
 	if (board.figure[color][KING] == 0)
 	{
-		return (color == WHITE) ? -999999 : 999999;
+		return (color == WHITE) ? -9999999 : 9999999;
 	}
 	if (moveList.empty())
 	{
 		if (MoveGeneration::isCheck(board, bitScanForward(board.figure[color][KING]), color))
 		{
-			return (color == WHITE) ? -999999 : 999999;
+			return (color == WHITE) ? -9999999 : 9999999;
 		}
 		else
 		{
@@ -246,7 +388,7 @@ float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta
 	float value;
 	if (color == WHITE) // maximizer
 	{
-		value = -999999;
+		value = -9999999;
 
 		for (Move m : moveList)
 		{
@@ -267,7 +409,7 @@ float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta
 	}
 	else // minimizer
 	{
-		value = 999999;
+		value = 9999999;
 
 		for (Move m : moveList)
 		{
@@ -343,7 +485,7 @@ float Game::quisanceSearch(Board& board, Color color, float alpha, float beta, i
 	int figureValues[] = { 5,3,3,1,9,10000 };
 	if (color == WHITE) // maximizer
 	{
-		value = -999999;
+		value = -9999999;
 
 
 
@@ -380,7 +522,7 @@ float Game::quisanceSearch(Board& board, Color color, float alpha, float beta, i
 	}
 	else // minimizer
 	{
-		value = 999999;
+		value = 9999999;
 
 
 

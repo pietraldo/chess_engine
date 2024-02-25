@@ -23,6 +23,7 @@ public:
 	void showBoard();
 	void readBoard(Board&);
 	void getBestMove(int depth, int maxTime=3600);
+	void quit();
 
 	static void startComunication();
 

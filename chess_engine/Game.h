@@ -36,7 +36,7 @@ public:
 	static int maxTime;
 private:
 	
-
+	
 	
 };
 
