@@ -77,6 +77,7 @@ Move Game::PickBestMove(Board& board, Color color, int maxDepth)
 	};
 
 	Move bestMove;
+	Move bestMoveLastDepth;
 	float bestEval;
 
 	float alpha=-99999;
@@ -91,6 +92,11 @@ Move Game::PickBestMove(Board& board, Color color, int maxDepth)
 			alpha = bestEval;
 			for (int j=0; j<combined.size(); j++)
 			{
+				if (((double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000000) > maxTime)
+				{
+					return bestMoveLastDepth;
+				}
+
 				MoveGeneration::makeMove(board, *combined[j].second);
 				list<Move> path = list<Move>();
 				float evalMove = AlphaBetaPrunning(board, toggleColor(color), bestEval, beta, i, path);
@@ -121,6 +127,11 @@ Move Game::PickBestMove(Board& board, Color color, int maxDepth)
 			beta = bestEval;
 			for (int j = 0; j < combined.size(); j++)
 			{
+				if (((double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000000) > maxTime)
+				{
+					return bestMoveLastDepth;
+				}
+
 				MoveGeneration::makeMove(board, *combined[j].second);
 				list<Move> path = list<Move>();
 				float evalMove = AlphaBetaPrunning(board, toggleColor(color), alpha, bestEval, i, path);
@@ -145,6 +156,7 @@ Move Game::PickBestMove(Board& board, Color color, int maxDepth)
 			}
 		}
 		cout << "DEPTH: " << i << " best move: " << bestMove << endl;
+		bestMoveLastDepth = bestMove;
 	}
 	
 	return bestMove;

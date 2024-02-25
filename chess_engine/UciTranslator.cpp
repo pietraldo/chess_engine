@@ -42,6 +42,7 @@ string UciTranslator::TranslateMove(Board& board, Move& m)
 int UciTranslator::goPerft(int depth)
 {
 	int nodes = MoveGeneration::goPerft(board, board.whoToMove, depth);
+	cout << "Number of nodes: " << nodes << endl;
 	return nodes;
 }
 
@@ -61,13 +62,61 @@ void UciTranslator::getBestMove(int depth, int maxTime)
 	
 	Game::maxTime = maxTime;
 	Game::start = start;
-	Move bestMove=Game::PickBestMove(board, board.whoToMove,4);
+	Move bestMove=Game::PickBestMove(board, board.whoToMove,depth);
 
 	auto stop = std::chrono::high_resolution_clock::now();
-	double seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count() / 1000000;
+	double seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000000;
 
 	cout << " " << Game::num << endl;
 	cout << "Time: " << seconds << endl << endl;
 
 	cout << "bestmove: " << TranslateMove(board,bestMove)<<endl;
+}
+
+void UciTranslator::startComunication()
+{
+	cout << "Kuba Engine :)" << endl;
+	string command;
+	
+	UciTranslator tr=UciTranslator();
+	
+	do
+	{
+		cin >> command;
+
+		if (command == "position")
+		{
+			cin >> command;
+			if (command == "fen")
+			{
+				cin >> command;
+				Board* b = MoveGeneration::boardFromFEN(command);
+				tr.readBoard(*b);
+			}
+		}
+		else if (command == "d")
+		{
+			tr.showBoard();
+		}
+		else if (command == "go")
+		{
+			cin >> command;
+			if (command == "perft")
+			{
+				cin >> command;
+				int depth=stoi(command);
+				tr.goPerft(depth);
+			}
+			else if (command == "depth")
+			{
+				cin >> command;
+				int depth = stoi(command);
+				cout << depth << endl;
+				tr.getBestMove(depth,30);
+			}
+		}
+
+	} while (true);
+
+	
 }

@@ -10,6 +10,7 @@
 #include "Functions.h"
 #include "Game.h"
 #include "MoveGeneration.h"
+#include "UciTranslator.h"
 #include "Test.h"
 
 #define N 8
@@ -33,8 +34,8 @@ int main()
 	//printBoard(*board);
 	 //cout<<Game::generation(board,board->whoToMove,5)<<endl;
 	//printBoard(*board);
-	Test::Test();
-
+	//Test::Test();
+	UciTranslator::startComunication();
 	//Game::startGame();
 }
 

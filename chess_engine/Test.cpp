@@ -180,21 +180,25 @@ bool Test::test5()
 bool Test::test6()
 {
 	GamePrepare();
-	Board* board = MoveGeneration::boardFromFEN("3qr1k1/1b2bp1p/p3pnpB/1p6/2rPN3/P6Q/1P3PPP/1B1RR1K1 w - - 6 21");
-	printBoard(*board);
+	Board* board = MoveGeneration::boardFromFEN("rn1qk2r/5ppp/p3pn2/1p4B1/3P4/P1N2Q2/B4PPP/R4RK1 b kq - 0 13");
+	//printBoard(*board);
 
 	UciTranslator tr = UciTranslator();
 	tr.readBoard(*board);
 
-	auto start = high_resolution_clock::now();
+	
+	/*auto start = high_resolution_clock::now();
 	int nodes=tr.goPerft(4);
 	auto stop = high_resolution_clock::now();
 	auto seconds = (double)duration_cast<microseconds>(stop - start).count() / 1000000;
 	cout << "Time: " << seconds << endl << endl;
 	cout << "Nodes: " << nodes << endl << endl;
-	cout << "Nodes/sec: " << nodes/seconds << endl << endl;
+	cout << "Nodes/sec: " << nodes/seconds << endl << endl;*/
 
-	tr.getBestMove(3);
+	tr.getBestMove(3,3);
+
+
+
 
 	return true;
 }
