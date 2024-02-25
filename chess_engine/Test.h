@@ -13,6 +13,7 @@ private:
 	bool test1();
 	bool test2();
 	bool test3();
+	bool test4();
 
 	string compareMoveGeneration(string stockfish, string myEngine, bool);
 };

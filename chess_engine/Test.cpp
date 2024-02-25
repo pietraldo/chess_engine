@@ -105,7 +105,8 @@ Test::Test()
 {
 	GamePrepare();
 	//test3();
-	test1();
+	//test1();
+	test4();
 	//test2();
 }
 
@@ -122,6 +123,40 @@ bool Test::test3()
 	cout << Game::Evaluate(*b);
 	return true;
 }
+
+
+bool Test::test4()
+{
+	GamePrepare();
+	Board* board = MoveGeneration::boardFromFEN("8/4kp2/p2qpp2/1p4r1/4Q3/1P3P2/1PP2bPP/R4R1K b - - 0 30");
+	printBoard(*board);
+
+	/*list<Move> moveList = list<Move>();
+	MoveGeneration::generateMovesNew(*board,BLACK, moveList);*/
+
+	auto start = high_resolution_clock::now();
+	cout << "Best move: " << Game::PickBestMove(*board, board->whoToMove);
+	auto stop = high_resolution_clock::now();
+	double seconds = (double)duration_cast<microseconds>(stop - start).count() / 1000000;
+	
+	cout << " " << Game::num << endl;
+	cout << "Time: " << seconds << endl << endl;
+
+	
+
+	Game::num = 0;
+
+	 start = high_resolution_clock::now();
+	cout << "Best move: " << Game::PickBestMove2(*board, board->whoToMove);
+	 stop = high_resolution_clock::now();
+	
+	cout << " " << Game::num << endl;
+	seconds = (double)duration_cast<microseconds>(stop - start).count() / 1000000;
+	cout << "Time: " << seconds << endl << endl;
+	return true;
+}
+
+
 bool Test::test2()
 {
 	return false;

@@ -24,10 +24,13 @@ public:
 	static void startGame();
 	static float Evaluate(Board& board);
 	static Move PickBestMove(Board&, Color);
+	static Move PickBestMove2(Board&, Color);
 	static float AlphaBetaPrunning(Board&, Color, float alpha, float beta, int maxDepth, int depth=1);
-private:
 	static int num;
-	static void sortMovesByEval(vector<float>& evals, vector<list<Move>::iterator>& moves);
+	
+private:
+	
+
 	
 };
 
