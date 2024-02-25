@@ -335,7 +335,6 @@ void MoveGeneration::addPawnMoves(Board& board, Color color, list<Move>& moveLis
 
 
 
-
 int MoveGeneration::count = 0;
 string MoveGeneration::output = "";
 
@@ -456,6 +455,168 @@ int MoveGeneration::generation(Board* board, Color color, int max_depth, int dep
 // TODO: except checking all checks in castle rights do attack board
 
 
+void MoveGeneration::generateOnlyCaptureMoves(Board& board, Color color, list<Move>& moveList)
+{
+	// There are three options
+	// 1. double (or more) checks -> king move
+	// 2. check -> king move, capture, cover
+	// 3. no check
+
+	int num_checks = 0;
+	Bitboard attackMap = 0;
+	Bitboard stopCheckFields = universe;
+	Color oponent = toggleColor(color);
+	Bitboard kingField = board.figure[color][KING];
+	int king_index = bitScanForward(kingField);
+
+
+	// checking how many checks are there and creating attack map
+	auto addAttack = [&](Bitboard figures, int figure_type)
+	{
+		while (figures)
+		{
+			int index = bitScanForward(figures);
+			Bitboard attackFigure = attacks_funcitons[figure_type](board, index, oponent);
+			board.occupancy[color] ^= board.figure[color][KING];
+			Bitboard attackFigure2 = attacks_funcitons[figure_type](board, index, oponent);
+			attackMap |= attackFigure2;
+			board.occupancy[color] ^= board.figure[color][KING];
+
+			// if there is check
+			if (attackFigure & kingField)
+			{
+				num_checks++;
+				stopCheckFields = attackFigure & attacks_funcitons[figure_type](board, king_index, color);
+				stopCheckFields |= fields[index];
+			}
+
+			figures &= figures - 1;
+		}
+	};
+	for (int i = 0; i < P; i++)
+	{
+		if (i == QUEEN)
+		{
+			Bitboard figures = board.figure[oponent][QUEEN];
+			addAttack(figures, ROOK);
+			addAttack(figures, BISHOP);
+			continue;
+		}
+
+		Bitboard figures = board.figure[oponent][i];
+		addAttack(figures, i);
+	}
+	// first case -> only king moves
+	if (num_checks >= 2)
+	{
+		Bitboard kingMoves = attackKingf(board, king_index, color);
+		kingMoves -= kingMoves & attackMap;
+		kingMoves -= kingMoves & board.occupancy[color];
+		addMovesToList(board, color, KING, king_index, kingMoves, moveList);
+	}
+	else
+	{
+		// looking for pinned figures
+		// generating moves for pinned figures
+
+
+		Bitboard pinned = 0; // figures that are pinned
+		// figures can be pinned by rook, bishop or queen
+		// 1. place rook or bishop in king's square and detect which figures are protecting king
+		// 2. delete this figure and now check if there is a bishop or rook attacking if so this deleted figure is pinned
+		for (int i = 0; i < 2; i++)
+		{
+			Bitboard attackFields = attacks_funcitons[i](board, king_index, oponent);
+			Bitboard covering = attackFields & board.occupancy[color];
+			Bitboard previous = (attacks_funcitons[i](board, king_index, color)) & (board.figure[oponent][i] | board.figure[oponent][QUEEN]);
+
+			Bitboard pinningFigures = board.figure[oponent][i] | board.figure[oponent][QUEEN];
+
+			while (covering)
+			{
+				int pinned_index = bitScanForward(covering);
+				Bitboard figure_field = fields[pinned_index];
+				// remove from occupancy
+				board.occupancy[color] ^= figure_field;
+				// check if it is a check 
+				Bitboard pinned_figure_legal_moves = attacks_funcitons[i](board, king_index, color);
+				if ((pinned_figure_legal_moves & pinningFigures) > previous)
+				{
+					int pinningFigureIndex = bitScanForward((pinned_figure_legal_moves & pinningFigures) - previous);
+					pinned_figure_legal_moves &= attacks_funcitons[i](board, pinningFigureIndex, color);
+					pinned_figure_legal_moves |= fields[pinningFigureIndex];
+					// without this figure it is check so...
+					// add to pinned 
+					pinned |= fields[pinned_index];
+					board.occupancy[color] ^= figure_field;
+					for (int j = 0; j < P - 1; j++)
+					{
+						if (figure_field & board.figure[color][j])
+						{
+							if (j != PAWN)
+							{
+								Bitboard legalMovesFigure = attacks_funcitons[j](board, pinned_index, color) & pinned_figure_legal_moves & stopCheckFields;
+								legalMovesFigure &= legalMovesFigure & board.occupancy[oponent]; // just captures
+								addMovesToList(board, color, j, pinned_index, legalMovesFigure, moveList);
+							}
+							else
+							{
+								addPawnMoves(board, color, moveList, stopCheckFields & pinned_figure_legal_moves&board.occupancy[oponent], ~pinned);
+							}
+
+						}
+					}
+
+				}
+				else
+				{
+					board.occupancy[color] ^= figure_field;
+				}
+
+
+				covering &= covering - 1;
+			}
+
+		}
+
+		//if (num_checks == 1)
+		//{
+		//	// generating moves of figures that are not pinned and this figures can go only for fields that are in stop check fields
+		//	vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN };
+		//	for (auto figure : figures) {
+		//		generateMoves(board, color, figure, moveList, stopCheckFields , pinned);
+		//	}
+		//	generateMoves(board, color, KING, moveList, (~attackMap), pinned);
+
+
+		//	addPawnMoves(board, color, moveList, stopCheckFields, pinned);
+		//}
+		//else
+		//{
+			// generating moves of figures that are not pinned and this figures can go only for fields that are in stop check fields
+			vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN };
+			for (auto figure : figures) {
+				generateMoves(board, color, figure, moveList, stopCheckFields & board.occupancy[oponent], pinned);
+			}
+			generateMoves(board, color, KING, moveList, (~attackMap) & board.occupancy[oponent], pinned);
+
+
+			addPawnMoves(board, color, moveList, stopCheckFields & board.occupancy[oponent], pinned);
+		/*}*/
+		
+	}
+}
+void MoveGeneration::generateOnlyCaptureMoves2(Board& board, Color color, list<Move>& moveList)
+{
+	Color oponent = toggleColor(color);
+	vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN };
+	for (auto figure : figures) {
+		generateMoves(board, color, figure, moveList,  board.occupancy[oponent], 0);
+	}
+	generateMoves(board, color, KING, moveList, board.occupancy[oponent], 0);
+
+	addPawnMoves(board, color, moveList,  board.occupancy[oponent], 0);
+}
 
 
 void MoveGeneration::generateMovesNew(Board& board, Color color, list<Move>& moveList)
@@ -722,4 +883,6 @@ void MoveGeneration::changeOnPassantMove(Board& board, Move& move)
 		}
 	}
 }
+
+
 

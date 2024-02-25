@@ -275,3 +275,5 @@ float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta
 	}
 	return value;
 }
+
+

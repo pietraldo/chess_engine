@@ -36,7 +36,8 @@ public:
 	static void generateMovesNew(Board&, Color, list<Move>&);
 
 
-
+	static void generateOnlyCaptureMoves(Board&, Color, list<Move>&);
+	static void generateOnlyCaptureMoves2(Board&, Color, list<Move>&);
 
 	static int generation(Board* board, Color color, int max_deth, int depth = 1);
 
