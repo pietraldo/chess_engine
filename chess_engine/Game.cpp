@@ -92,11 +92,19 @@ Move Game::PickBestMove(Board& board, Color color)
 			for (int j=0; j<combined.size(); j++)
 			{
 				MoveGeneration::makeMove(board, *combined[j].second);
-				float evalMove = AlphaBetaPrunning(board, toggleColor(color), bestEval, beta, i);
+				list<Move> path = list<Move>();
+				float evalMove = AlphaBetaPrunning(board, toggleColor(color), bestEval, beta, i, path);
 				MoveGeneration::unmakeMove(board, *combined[j].second);
 				
-				if(i==maxDepth)
+				if (i == maxDepth)
+				{
 					cout << (*combined[j].second) << ": " << evalMove << endl;
+					cout << "            ";
+					for (auto m : path)
+						cout << m << " ";
+					cout << endl;
+				}
+					
 				
 				combined[j].first = evalMove;
 				if (evalMove > bestEval)
@@ -114,11 +122,19 @@ Move Game::PickBestMove(Board& board, Color color)
 			for (int j = 0; j < combined.size(); j++)
 			{
 				MoveGeneration::makeMove(board, *combined[j].second);
-				float evalMove = AlphaBetaPrunning(board, toggleColor(color), alpha, bestEval, i);
+				list<Move> path = list<Move>();
+				float evalMove = AlphaBetaPrunning(board, toggleColor(color), alpha, bestEval, i, path);
 				MoveGeneration::unmakeMove(board, *combined[j].second);
 				
 				if (i == maxDepth)
+				{
 					cout << (*combined[j].second) << ": " << evalMove << endl;
+					cout << "            ";
+					for (auto m : path)
+						cout << m << " ";
+					cout << endl;
+				}
+					
 				
 				combined[j].first = evalMove;
 				if (evalMove < bestEval)
@@ -136,57 +152,58 @@ Move Game::PickBestMove(Board& board, Color color)
 
 Move Game::PickBestMove2(Board& board, Color color)
 {
-	list<Move> moveList = list<Move>();
-	MoveGeneration::generateMovesNew(board, color, moveList);
+	//list<Move> moveList = list<Move>();
+	//MoveGeneration::generateMovesNew(board, color, moveList);
 
-	if (moveList.empty())
-		exit(-22);
+	//if (moveList.empty())
+	//	exit(-22);
 
-	float alpha = -999999;
-	float beta = 999999;
+	//float alpha = -999999;
+	//float beta = 999999;
 
-	Move bestMove = moveList.front();
-	MoveGeneration::makeMove(board, bestMove);
-	float bestEval = AlphaBetaPrunning(board, toggleColor(color), alpha, beta, maxDepth);
-	MoveGeneration::unmakeMove(board, bestMove);
-	cout << bestMove << endl;
-	if (color == WHITE) // maxinmazing
-	{
-		alpha = bestEval;
-		for (auto it = next(moveList.begin()); it != moveList.end(); ++it)
-		{
-			MoveGeneration::makeMove(board, *it);
-			float evalMove = AlphaBetaPrunning(board, toggleColor(color), bestEval, beta, maxDepth);
-			MoveGeneration::unmakeMove(board, *it);
-			cout << (*it) << ": " << evalMove << endl;
-			if (evalMove > bestEval)
-			{
-				bestEval = evalMove;
-				bestMove = *it;
-			}
-		}
-	}
-	else // minimazing
-	{
-		beta = bestEval;
-		for (auto it = next(moveList.begin()); it != moveList.end(); ++it)
-		{
-			MoveGeneration::makeMove(board, *it);
-			float evalMove = AlphaBetaPrunning(board, toggleColor(color), alpha, bestEval, maxDepth);
-			MoveGeneration::unmakeMove(board, *it);
-			cout << (*it) << ": " << evalMove << endl;
-			if (evalMove < bestEval)
-			{
-				bestEval = evalMove;
-				bestMove = *it;
-			}
-		}
-	}
-	return bestMove;
+	//Move bestMove = moveList.front();
+	//MoveGeneration::makeMove(board, bestMove);
+	//float bestEval = AlphaBetaPrunning(board, toggleColor(color), alpha, beta, maxDepth);
+	//MoveGeneration::unmakeMove(board, bestMove);
+	//cout << bestMove << endl;
+	//if (color == WHITE) // maxinmazing
+	//{
+	//	alpha = bestEval;
+	//	for (auto it = next(moveList.begin()); it != moveList.end(); ++it)
+	//	{
+	//		MoveGeneration::makeMove(board, *it);
+	//		float evalMove = AlphaBetaPrunning(board, toggleColor(color), bestEval, beta, maxDepth);
+	//		MoveGeneration::unmakeMove(board, *it);
+	//		cout << (*it) << ": " << evalMove << endl;
+	//		if (evalMove > bestEval)
+	//		{
+	//			bestEval = evalMove;
+	//			bestMove = *it;
+	//		}
+	//	}
+	//}
+	//else // minimazing
+	//{
+	//	beta = bestEval;
+	//	for (auto it = next(moveList.begin()); it != moveList.end(); ++it)
+	//	{
+	//		MoveGeneration::makeMove(board, *it);
+	//		float evalMove = AlphaBetaPrunning(board, toggleColor(color), alpha, bestEval, maxDepth);
+	//		MoveGeneration::unmakeMove(board, *it);
+	//		cout << (*it) << ": " << evalMove << endl;
+	//		if (evalMove < bestEval)
+	//		{
+	//			bestEval = evalMove;
+	//			bestMove = *it;
+	//		}
+	//	}
+	//}
+	//return bestMove;
+	return Move();
 }
 
 
-float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta, int maxDepth, int depth)
+float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta, int maxDepth, list<Move>& pathHistory, int depth)
 {
 	// TODO: don't do recursive just to evaluate
 	if (depth == maxDepth)
@@ -220,10 +237,13 @@ float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta
 		for (Move m : moveList)
 		{
 			MoveGeneration::makeMove(board, m);
-			float moveValue = AlphaBetaPrunning(board, toggleColor(color),value, beta, maxDepth, depth+1);
+			list<Move> path=list<Move>();
+			float moveValue = AlphaBetaPrunning(board, toggleColor(color),value, beta, maxDepth, path, depth+1);
 			if (moveValue > value)
 			{
 				value = moveValue;
+				path.push_back(m);
+				pathHistory = path;
 			}
 			MoveGeneration::unmakeMove(board, m);
 
@@ -238,10 +258,13 @@ float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta
 		for (Move m : moveList)
 		{
 			MoveGeneration::makeMove(board, m);
-			float moveValue = AlphaBetaPrunning(board, toggleColor(color), alpha, value, maxDepth, depth + 1);
+			list<Move> path = list<Move>();
+			float moveValue = AlphaBetaPrunning(board, toggleColor(color), alpha, value, maxDepth,path, depth + 1);
 			if (moveValue < value)
 			{
 				value = moveValue;
+				path.push_back(m);
+				pathHistory = path;
 			}
 			MoveGeneration::unmakeMove(board, m);
 

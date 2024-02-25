@@ -25,7 +25,7 @@ public:
 	static float Evaluate(Board& board);
 	static Move PickBestMove(Board&, Color);
 	static Move PickBestMove2(Board&, Color);
-	static float AlphaBetaPrunning(Board&, Color, float alpha, float beta, int maxDepth, int depth=1);
+	static float AlphaBetaPrunning(Board&, Color, float alpha, float beta, int maxDepth, list<Move>& pathHistory ,int depth=1);
 	static int num;
 	
 private:

@@ -128,7 +128,7 @@ bool Test::test3()
 bool Test::test4()
 {
 	GamePrepare();
-	Board* board = MoveGeneration::boardFromFEN("8/4kp2/p2qpp2/1p4r1/4Q3/1P3P2/1PP2bPP/R4R1K b - - 0 30");
+	Board* board = MoveGeneration::boardFromFEN("r2qB1k1/pQp2p1p/1n2p1pB/4b3/3n4/7P/PP3PP1/RN1R2K1 b - - 2 16");
 	printBoard(*board);
 
 	/*list<Move> moveList = list<Move>();
