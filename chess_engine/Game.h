@@ -26,8 +26,11 @@ public:
 	static Move PickBestMove(Board&, Color);
 	static Move PickBestMove2(Board&, Color);
 	static float AlphaBetaPrunning(Board&, Color, float alpha, float beta, int maxDepth, list<Move>& pathHistory ,int depth=1);
-	static int num;
 	
+	static float quisanceSearch(Board& board, Color color, float alpha, float beta, int max_depth, int depth);
+	static bool positionStable(Board&) { return false; };
+	
+	static int num;
 private:
 	
 

@@ -106,8 +106,8 @@ Test::Test()
 	GamePrepare();
 	//test3();
 	//test1();
-	//test4();
-	test5();
+	test4();
+	//test5();
 	//test2();
 }
 
@@ -129,7 +129,7 @@ bool Test::test3()
 bool Test::test4()
 {
 	GamePrepare();
-	Board* board = MoveGeneration::boardFromFEN("r2qB1k1/pQp2p1p/1n2p1pB/4b3/3n4/7P/PP3PP1/RN1R2K1 b - - 2 16");
+	Board* board = MoveGeneration::boardFromFEN("2r5/5k1p/4p3/p7/4r3/1P6/P4P2/3R1RK1 b - - 3 33");
 	printBoard(*board);
 
 	/*list<Move> moveList = list<Move>();
@@ -158,146 +158,9 @@ bool Test::test4()
 }
 
 
-void sortMove(vector<list<Move>::iterator>& moveList)
-{
-	int values[] = { 5,3,3,1,9,10000 };
-	auto compare = [values](const list<Move>::iterator& p1, const list<Move>::iterator& p2) {
-		if (p1->move2 == 0)
-			 return false;
-		else if (p2->move2 == 0)
-			 return true;
-		return (values[(p1->type_piece2)%P]-values[(p1->type_piece)%6]) > (values[(p2->type_piece2)%6] - values[(p2->type_piece)%6]); // Sort in descending order
-	};
-	sort(moveList.begin(), moveList.end(), compare);
-}
-int cuttoff = 0;
-int downCutoff;
-int upCutoff;
-float gg(Board& board, Color color,float alpha, float beta, int max_depth, int depth)
-{
-	if (depth == max_depth || board.figure[color][KING]==0)
-	{
-		return Game::Evaluate(board);
-	}
-	list<Move> moveList = list<Move>();
-	MoveGeneration::generateOnlyCaptureMoves(board, color, moveList);
-	if (moveList.empty())
-		return Game::Evaluate(board);
-	
-	//sorting by MVV/LVA
-	vector<list<Move>::iterator> myVector(moveList.size());
-	int k = 0;
-	for (auto it = moveList.begin(); it != moveList.end(); it++)
-		myVector[k++] = it;
-	sortMove(myVector);
-
-	/*if (depth == 0)
-	{
-		int values[] = { 5,3,3,1,9,10000 };
-		for (int i = 0; i < myVector.size(); i++)
-		{
-			cout << *myVector[i]<<": "<< values[(myVector[i]->type_piece2) % P] - values[(myVector[i]->type_piece) % 6]<< ": "<<(myVector[i]->move2==0) << endl;
-		}
-	}*/
-	float staticEvale = Game::Evaluate(board);
-	if (staticEvale > upCutoff || staticEvale < downCutoff)
-		return staticEvale;
-
-	float value;
-	string spaces(depth , ' ');
-	spaces = to_string(depth) + spaces;
-	int figureValues[] = { 5,3,3,1,9,10000 };
-	if (color == WHITE) // maximizer
-	{
-		value = -999999;
-
-		
-
-		for (int i=0; i<myVector.size(); i++)
-		{	
-			if (figureValues[(myVector[i]->type_piece2) % 6] <= 1)
-				return staticEvale;
-			if(depth==0)
-				cout << spaces << *myVector[i] << endl;
-			MoveGeneration::makeMove(board, *myVector[i]);
-			float moveValue = gg(board, toggleColor(color), value, beta, max_depth, depth + 1);
-			if (depth == 0)
-				cout << *myVector[i] <<": " << moveValue << endl;
-			
-			if (moveValue > value)
-			{
-				value = moveValue;
-			}
-			MoveGeneration::unmakeMove(board, *myVector[i]);
-
-			if (value > beta)
-			{
-				/*cuttoff++;
-				if (cuttoff % 10000==0)
-					cout << cuttoff << endl;*/
-				return value;
-			}
-				
-		}
-		if (staticEvale > value)
-		{
-			return staticEvale;
-		}
-	}
-	else // minimizer
-	{
-		value = 999999;
-		
-		
-		
-
-		for (int i = 0; i < myVector.size(); i++)
-		{
-			//cout << spaces << *myVector[i] << endl;
-			MoveGeneration::makeMove(board, *myVector[i]);
-			float moveValue = gg(board, toggleColor(color), alpha, value, max_depth, depth+1);
-			
-			if (moveValue < value)
-			{
-				value = moveValue;
-			}
-			MoveGeneration::unmakeMove(board, *myVector[i]);
-
-			
-			if (value < alpha)
-			{
-				cuttoff++;
-				return value;
-			}
-				
-		}
-		if (staticEvale < value)
-		{
-			//cout <<spaces<< "Null move"<<endl;
-			return staticEvale;
-		}
-		
-	}
-	return value;
-	
-	//if (depth == max_depth)
-	//	return;
-	//list<Move> legalMoves = list<Move>();
-	//MoveGeneration::generateOnlyCaptureMoves(board, color, legalMoves);
-	//for (auto m : legalMoves)
-	//{
-	//	
-	//	string spaces(depth*5, ' ');
-	//	//cout << spaces << m << endl;
-	//	MoveGeneration::makeMove(board,m);
-	//	gg(board, toggleColor(color), max_depth, depth+1);
-	//	MoveGeneration::unmakeMove(board,m);
-	//}
-}
-
 bool Test::test5()
 {
-	GamePrepare();
+	/*GamePrepare();
 	Board* board = MoveGeneration::boardFromFEN("r2q1rk1/pb1nppbp/1p1pPnp1/5P2/2PpP3/2NBB3/PP2N1PP/R2Q1RK1 w - - 0 11");
 	printBoard(*board);
 
@@ -308,7 +171,7 @@ bool Test::test5()
 	cout<<gg(*board, board->whoToMove,-9999999, 99999999, 100,0);
 	auto stop = high_resolution_clock::now();
 	auto seconds = (double)duration_cast<microseconds>(stop - start).count() / 1000000;
-	cout << "Time: " << seconds << endl << endl;
+	cout << "Time: " << seconds << endl << endl;*/
 
 	return true;
 }

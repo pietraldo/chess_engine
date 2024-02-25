@@ -208,7 +208,9 @@ float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta
 	// TODO: don't do recursive just to evaluate
 	if (depth == maxDepth)
 	{
-		return Evaluate(board);
+		if(positionStable(board))
+			return Evaluate(board);
+		return quisanceSearch(board, color, alpha, beta, 100, 0);
 	}
 	list<Move> moveList = list<Move>();
 	MoveGeneration::generateMovesNew(board,color,moveList);
@@ -277,3 +279,126 @@ float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta
 }
 
 
+
+void sortMove(vector<list<Move>::iterator>& moveList)
+{
+	int values[] = { 5,3,3,1,9,10000 };
+	auto compare = [values](const list<Move>::iterator& p1, const list<Move>::iterator& p2) {
+		if (p1->move2 == 0)
+			return false;
+		else if (p2->move2 == 0)
+			return true;
+		return (values[(p1->type_piece2) % P] - values[(p1->type_piece) % 6]) > (values[(p2->type_piece2) % 6] - values[(p2->type_piece) % 6]); // Sort in descending order
+	};
+	sort(moveList.begin(), moveList.end(), compare);
+}
+int cuttoff = 0;
+int downCutoff=-20;
+int upCutoff=20;
+float Game::quisanceSearch(Board& board, Color color, float alpha, float beta, int max_depth, int depth)
+{
+	if (depth == max_depth || board.figure[color][KING] == 0)
+	{
+		return Game::Evaluate(board);
+	}
+	list<Move> moveList = list<Move>();
+	MoveGeneration::generateOnlyCaptureMoves(board, color, moveList);
+	if (moveList.empty())
+		return Game::Evaluate(board);
+
+	//sorting by MVV/LVA
+	vector<list<Move>::iterator> myVector(moveList.size());
+	int k = 0;
+	for (auto it = moveList.begin(); it != moveList.end(); it++)
+		myVector[k++] = it;
+	sortMove(myVector);
+
+	/*if (depth == 0)
+	{
+		int values[] = { 5,3,3,1,9,10000 };
+		for (int i = 0; i < myVector.size(); i++)
+		{
+			cout << *myVector[i]<<": "<< values[(myVector[i]->type_piece2) % P] - values[(myVector[i]->type_piece) % 6]<< ": "<<(myVector[i]->move2==0) << endl;
+		}
+	}*/
+	float staticEvale = Game::Evaluate(board);
+	if (staticEvale > upCutoff || staticEvale < downCutoff)
+		return staticEvale;
+
+	float value;
+	string spaces(depth, ' ');
+	spaces = to_string(depth) + spaces;
+	int figureValues[] = { 5,3,3,1,9,10000 };
+	if (color == WHITE) // maximizer
+	{
+		value = -999999;
+
+
+
+		for (int i = 0; i < myVector.size(); i++)
+		{
+			if (figureValues[(myVector[i]->type_piece2) % 6] <= 1)
+				return staticEvale;
+			/*if (depth == 0)
+				cout << spaces << *myVector[i] << endl;*/
+			MoveGeneration::makeMove(board, *myVector[i]);
+			float moveValue = quisanceSearch(board, toggleColor(color), value, beta, max_depth, depth + 1);
+			/*if (depth == 0)
+				cout << *myVector[i] << ": " << moveValue << endl;*/
+
+			if (moveValue > value)
+			{
+				value = moveValue;
+			}
+			MoveGeneration::unmakeMove(board, *myVector[i]);
+
+			if (value > beta)
+			{
+				/*cuttoff++;
+				if (cuttoff % 10000==0)
+					cout << cuttoff << endl;*/
+				return value;
+			}
+
+		}
+		if (staticEvale > value)
+		{
+			return staticEvale;
+		}
+	}
+	else // minimizer
+	{
+		value = 999999;
+
+
+
+
+		for (int i = 0; i < myVector.size(); i++)
+		{
+			//cout << spaces << *myVector[i] << endl;
+			MoveGeneration::makeMove(board, *myVector[i]);
+			float moveValue = quisanceSearch(board, toggleColor(color), alpha, value, max_depth, depth + 1);
+
+			if (moveValue < value)
+			{
+				value = moveValue;
+			}
+			MoveGeneration::unmakeMove(board, *myVector[i]);
+
+
+			if (value < alpha)
+			{
+				cuttoff++;
+				return value;
+			}
+
+		}
+		if (staticEvale < value)
+		{
+			//cout <<spaces<< "Null move"<<endl;
+			return staticEvale;
+		}
+
+	}
+	return value;
+}
