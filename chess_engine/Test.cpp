@@ -104,7 +104,7 @@ bool Test::test1()
 Test::Test()
 {
 	GamePrepare();
-	//test3();
+	test3();
 	//test1();
 	//test4();
 	//test5();
@@ -121,8 +121,9 @@ int bitScanForward2(Bitboard bb)
 }
 bool Test::test3()
 {
-	Board* b = MoveGeneration::boardFromFEN("r1b1k1nr/1ppp1pp1/p1n1p1qp/8/3PPB2/P1PB1N2/2P2PPP/R2QK2R b KQkq - 1 9");
-	cout << Game::Evaluate2(*b);
+	Board* b = MoveGeneration::boardFromFEN("r1b1k2r/pppq1ppp/2n2n2/1N1pN3/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
+	Board* b2 = MoveGeneration::boardFromFEN("r1b1k2r/ppp2ppp/2n2n2/1N1p4/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
+	cout << Game::Evaluate(*b)<<" " << Game::Evaluate(*b2);
 	return true;
 }
 
@@ -130,7 +131,7 @@ bool Test::test3()
 bool Test::test4()
 {
 	GamePrepare();
-	Board* board = MoveGeneration::boardFromFEN("rnb1k3/pppppppp/1r1q4/4b3/1B3N2/3Q2B1/PPPPPPPP/RN2KB1R w KQq - 0 1");
+	Board* board = MoveGeneration::boardFromFEN("r1b1k2r/pppq1ppp/2n2n2/1N1pN3/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
 	printBoard(*board);
 
 	/*list<Move> moveList = list<Move>();
@@ -138,23 +139,24 @@ bool Test::test4()
 	auto start = high_resolution_clock::now();
 	Game::maxTime = 30;
 	Game::start = start;
-	
-	cout << "Best move: " << Game::PickBestMove(*board, board->whoToMove, 5);
+	Move bestMove=Game::PickBestMove(*board, board->whoToMove,3);
+	cout << "Best move: " << bestMove;
 	auto stop = high_resolution_clock::now();
 	double seconds = (double)duration_cast<microseconds>(stop - start).count() / 1000000;
 	
 	cout << " " << Game::num << endl;
 	cout << "Time: " << seconds << endl << endl;
 
-	
+	cout<<UciTranslator::TranslateMove(*board, bestMove);
 	return true;
 }
 bool Test::test7()
 {
-	Board* board = MoveGeneration::boardFromFEN("rnb1k3/pppppppp/1r1q4/4b3/1B3N2/3Q2B1/PPPPPPPP/RN2KB1R w KQq - 0 1");
+	Board* board = MoveGeneration::boardFromFEN("r1b1k2r/pppq1ppp/5n2/1N1pP3/1P2p3/4P2P/1PP2PP1/R1BQKB1R b KQkq - 0 10");
 	printBoard(*board);
 	list<Move> moveList = list<Move>();
 	Game::quisanceSearch(*board, board->whoToMove, -9999, 9999, 100, 0, moveList);
+	cout << "Best line: ";
 	for (auto a : moveList)
 	{
 		cout << a << " ";

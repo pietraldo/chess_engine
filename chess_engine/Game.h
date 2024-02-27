@@ -35,6 +35,8 @@ public:
 	static int num;
 	static std::chrono::steady_clock::time_point start;
 	static int maxTime;
+
+
 private:
 	
 	
