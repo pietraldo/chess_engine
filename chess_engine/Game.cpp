@@ -261,8 +261,8 @@ Move Game::PickBestMove(Board& board, Color color, int maxDepth)
 			{
 				if (((double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000000) > maxTime)
 				{
-					if(bestEval> bestEvalLastMove)
-						return *combined[j].second;
+					if (bestEval > bestEvalLastMove)
+						return bestMove;
 					return bestMoveLastDepth;
 				}
 
@@ -298,6 +298,8 @@ Move Game::PickBestMove(Board& board, Color color, int maxDepth)
 			{
 				if (((double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000000) > maxTime)
 				{
+					if (bestEval > bestEvalLastMove)
+						return bestMove;
 					return bestMoveLastDepth;
 				}
 
