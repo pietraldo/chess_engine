@@ -119,7 +119,7 @@ void UciTranslator::startComunication()
 				cin >> command;
 				int depth = stoi(command);
 				cout << depth << endl;
-				tr.getBestMove(depth,30);
+				tr.getBestMove(depth,10);
 				tr.quit();
 			}
 		}

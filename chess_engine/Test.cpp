@@ -109,7 +109,7 @@ Test::Test()
 	//test4();
 	//test5();
 	//test2();
-	test6();
+	//test7();
 }
 
 
@@ -121,8 +121,8 @@ int bitScanForward2(Bitboard bb)
 }
 bool Test::test3()
 {
-	Board* b = MoveGeneration::boardFromFEN("rnb1kbnr/pppppppp/8/8/8/8/PPPPPPPP/RN1QKBNR w KQkq - 0 1");
-	cout << Game::Evaluate(*b);
+	Board* b = MoveGeneration::boardFromFEN("r1b1k1nr/1ppp1pp1/p1n1p1qp/8/3PPB2/P1PB1N2/2P2PPP/R2QK2R b KQkq - 1 9");
+	cout << Game::Evaluate2(*b);
 	return true;
 }
 
@@ -130,14 +130,16 @@ bool Test::test3()
 bool Test::test4()
 {
 	GamePrepare();
-	Board* board = MoveGeneration::boardFromFEN("2r5/5k1p/4p3/p7/4r3/1P6/P4P2/3R1RK1 b - - 3 33");
+	Board* board = MoveGeneration::boardFromFEN("rnb1k3/pppppppp/1r1q4/4b3/1B3N2/3Q2B1/PPPPPPPP/RN2KB1R w KQq - 0 1");
 	printBoard(*board);
 
 	/*list<Move> moveList = list<Move>();
 	MoveGeneration::generateMovesNew(*board,BLACK, moveList);*/
-
 	auto start = high_resolution_clock::now();
-	cout << "Best move: " << Game::PickBestMove(*board, board->whoToMove, 4);
+	Game::maxTime = 30;
+	Game::start = start;
+	
+	cout << "Best move: " << Game::PickBestMove(*board, board->whoToMove, 5);
 	auto stop = high_resolution_clock::now();
 	double seconds = (double)duration_cast<microseconds>(stop - start).count() / 1000000;
 	
@@ -145,19 +147,20 @@ bool Test::test4()
 	cout << "Time: " << seconds << endl << endl;
 
 	
-
-	Game::num = 0;
-
-	 start = high_resolution_clock::now();
-	cout << "Best move: " << Game::PickBestMove2(*board, board->whoToMove);
-	 stop = high_resolution_clock::now();
-	
-	cout << " " << Game::num << endl;
-	seconds = (double)duration_cast<microseconds>(stop - start).count() / 1000000;
-	cout << "Time: " << seconds << endl << endl;
 	return true;
 }
-
+bool Test::test7()
+{
+	Board* board = MoveGeneration::boardFromFEN("rnb1k3/pppppppp/1r1q4/4b3/1B3N2/3Q2B1/PPPPPPPP/RN2KB1R w KQq - 0 1");
+	printBoard(*board);
+	list<Move> moveList = list<Move>();
+	Game::quisanceSearch(*board, board->whoToMove, -9999, 9999, 100, 0, moveList);
+	for (auto a : moveList)
+	{
+		cout << a << " ";
+	}
+	return true;
+}
 
 bool Test::test5()
 {
