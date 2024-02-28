@@ -3,22 +3,11 @@
 void Game::startGame()
 {
 	GamePrepare();
-	Board* board = MoveGeneration::boardFromFEN("7r/1p4pp/3kpn2/pR6/4p3/P7/1P4PP/2R3K1 w - - 0 26");
+	Board* board = UciTranslator::boardFromFEN("7r/1p4pp/3kpn2/pR6/4p3/P7/1P4PP/2R3K1 w - - 0 26");
 	printBoard(*board);
-
-	/*list<Move> moveList = list<Move>();
-	MoveGeneration::generateMovesNew(*board,BLACK, moveList);*/
-
-	cout<<"Best move: "<<PickBestMove(*board, WHITE,4);
-	cout << " " << num<<endl;
-
-	num = 0;
-	cout << "Best move: " << PickBestMove2(*board, WHITE);
-	cout << " " << num<<endl;
 }
+
 int Game::num = 0;
-std::chrono::steady_clock::time_point Game::start;
-int Game::maxTime;
 
 constexpr int pawnsEval2[64] = { 
 	0,  0,  0,  0,  0,  0,  0,  0,
@@ -38,8 +27,6 @@ constexpr int pawnsEval[64] = {
 	10, 10, 20, 30, 30, 20, 10, 10,
 	50, 50, 50, 50, 50, 50, 50, 50,
 	0,  0,  0,  0,  0,  0,  0,  0 };
-
-
 constexpr int knightsEval[64] = {
 
 	-50,-40,-30,-30,-30,-30,-40,-50,
@@ -62,7 +49,6 @@ constexpr int rooksEval2[64] = {
 	 -5,  0,  0,  0,  0,  0,  0, -5,
 	  0,  0,  0,  5,  5,  0,  0,  0
 };
-
 constexpr int rooksEval[64] = {
 
 	  0,  0,  0,  5,  5,  0,  0,  0,
@@ -74,7 +60,6 @@ constexpr int rooksEval[64] = {
 	  5, 10, 10, 10, 10, 10, 10,  5,
 	  0,  0,  0,  0,  0,  0,  0,  0
 };
-
 constexpr int queensEval[64] = {
 
 	-20,-10,-10, -5, -5,-10,-10,-20,
@@ -120,7 +105,6 @@ constexpr int kingsEval2[64] = {
 	 20, 20,  0,  0,  0,  0, 20, 20,
 	 20, 30, 10,  0,  0, 10, 30, 20
 };
-
 constexpr int kingsEval[64] = {
 
 	20, 30, 10,  0,  0, 10, 30, 20,
@@ -132,7 +116,6 @@ constexpr int kingsEval[64] = {
 	-30,-40,-40,-50,-50,-40,-40,-30,
 	-30,-40,-40,-50,-50,-40,-40,-30
 };
-
 constexpr const int* evalsBoards[12] = {
 	rooksEval,
 	bishopsEval,
@@ -209,9 +192,11 @@ float Game::Evaluate(Board& board)
 	return eval;
 }
 
-Move Game::PickBestMove(Board& board, Color color, int maxDepth)
+Move Game::PickBestMove(Board& board, Color color, int maxDepth, int maxTime)
 {
-	
+	// to control hom much time this is counting
+	auto start=std::chrono::high_resolution_clock::now();
+
 	list<Move> moveList = list<Move>();
 	MoveGeneration::generateMovesNew(board, color, moveList);
 	
@@ -334,59 +319,6 @@ Move Game::PickBestMove(Board& board, Color color, int maxDepth)
 	return bestMove;
 }
 
-Move Game::PickBestMove2(Board& board, Color color)
-{
-	//list<Move> moveList = list<Move>();
-	//MoveGeneration::generateMovesNew(board, color, moveList);
-
-	//if (moveList.empty())
-	//	exit(-22);
-
-	//float alpha = -999999;
-	//float beta = 999999;
-
-	//Move bestMove = moveList.front();
-	//MoveGeneration::makeMove(board, bestMove);
-	//float bestEval = AlphaBetaPrunning(board, toggleColor(color), alpha, beta, maxDepth);
-	//MoveGeneration::unmakeMove(board, bestMove);
-	//cout << bestMove << endl;
-	//if (color == WHITE) // maxinmazing
-	//{
-	//	alpha = bestEval;
-	//	for (auto it = next(moveList.begin()); it != moveList.end(); ++it)
-	//	{
-	//		MoveGeneration::makeMove(board, *it);
-	//		float evalMove = AlphaBetaPrunning(board, toggleColor(color), bestEval, beta, maxDepth);
-	//		MoveGeneration::unmakeMove(board, *it);
-	//		cout << (*it) << ": " << evalMove << endl;
-	//		if (evalMove > bestEval)
-	//		{
-	//			bestEval = evalMove;
-	//			bestMove = *it;
-	//		}
-	//	}
-	//}
-	//else // minimazing
-	//{
-	//	beta = bestEval;
-	//	for (auto it = next(moveList.begin()); it != moveList.end(); ++it)
-	//	{
-	//		MoveGeneration::makeMove(board, *it);
-	//		float evalMove = AlphaBetaPrunning(board, toggleColor(color), alpha, bestEval, maxDepth);
-	//		MoveGeneration::unmakeMove(board, *it);
-	//		cout << (*it) << ": " << evalMove << endl;
-	//		if (evalMove < bestEval)
-	//		{
-	//			bestEval = evalMove;
-	//			bestMove = *it;
-	//		}
-	//	}
-	//}
-	//return bestMove;
-	return Move();
-}
-
-
 float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta, int maxDepth, list<Move>& pathHistory, int depth)
 {
 	// TODO: don't do recursive just to evaluate
@@ -464,7 +396,7 @@ float Game::AlphaBetaPrunning(Board& board, Color color, float alpha, float beta
 
 
 
-void sortMove(vector<list<Move>::iterator>& moveList)
+void Game::sortMovesMVLVA(vector<list<Move>::iterator>& moveList)
 {
 	int values[] = { 5,3,3,1,9,10000 };
 	auto compare = [values](const list<Move>::iterator& p1, const list<Move>::iterator& p2) {
@@ -476,7 +408,6 @@ void sortMove(vector<list<Move>::iterator>& moveList)
 	};
 	sort(moveList.begin(), moveList.end(), compare);
 }
-int cuttoff = 0;
 
 float Game::quisanceSearch(Board& board, Color color, float alpha, float beta, int max_depth, int depth, list<Move>& pathHistory)
 {
@@ -486,6 +417,7 @@ float Game::quisanceSearch(Board& board, Color color, float alpha, float beta, i
 	}
 	list<Move> moveList = list<Move>();
 	MoveGeneration::generateOnlyCaptureMoves(board, color, moveList);
+
 	if (moveList.empty())
 		return Game::Evaluate(board);
 
@@ -494,7 +426,7 @@ float Game::quisanceSearch(Board& board, Color color, float alpha, float beta, i
 	int k = 0;
 	for (auto it = moveList.begin(); it != moveList.end(); it++)
 		myVector[k++] = it;
-	sortMove(myVector);
+	sortMovesMVLVA(myVector);
 
 	
 	float staticEvale = Game::Evaluate(board);
@@ -513,6 +445,9 @@ float Game::quisanceSearch(Board& board, Color color, float alpha, float beta, i
 		for (int i = 0; i < myVector.size(); i++)
 		{
 			float moveValue;
+
+			// not counting captures figures that are less worth than 1 because
+			// it will be counting to much time (almost untill there be empty board)
 			if (figureValues[(myVector[i]->type_piece2) % 6] <= 1)
 			{
 				moveValue = staticEvale;
@@ -559,6 +494,9 @@ float Game::quisanceSearch(Board& board, Color color, float alpha, float beta, i
 		for (int i = 0; i < myVector.size(); i++)
 		{
 			float moveValue;
+
+			// not counting captures figures that are less worth than 1 because
+			// it will be counting to much time (almost untill there be empty board)
 			if (figureValues[(myVector[i]->type_piece2) % 6] <= 1)
 			{
 				moveValue = staticEvale;
@@ -580,7 +518,7 @@ float Game::quisanceSearch(Board& board, Color color, float alpha, float beta, i
 			
 			//cout << spaces << *myVector[i] << " " << moveValue << endl;
 
-
+			// alpha cut off
 			if (value < alpha)
 			{
 				//cout << spaces << "Cut off" << endl;
@@ -589,6 +527,7 @@ float Game::quisanceSearch(Board& board, Color color, float alpha, float beta, i
 
 		}
 		
+		// not doing capture
 		if (staticEvale < value)
 		{
 			//cout <<spaces<< "Null move"<<endl;

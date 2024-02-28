@@ -25,21 +25,18 @@ public:
 	static void startGame();
 	static float Evaluate(Board& board);
 	static float Evaluate2(Board& board);
-	static Move PickBestMove(Board&, Color, int depth);
-	static Move PickBestMove2(Board&, Color);
+	static Move PickBestMove(Board&, Color, int depth, int maxTime=3600);
+
 	static float AlphaBetaPrunning(Board&, Color, float alpha, float beta, int maxDepth, list<Move>& pathHistory ,int depth=1);
 	
 	static float quisanceSearch(Board& board, Color color, float alpha, float beta, int max_depth, int depth, list<Move>& pathHistory);
 	static bool positionStable(Board&) { return false; };
 	
 	static int num;
-	static std::chrono::steady_clock::time_point start;
-	static int maxTime;
-
 
 private:
 	
-	
+	static void sortMovesMVLVA(vector<list<Move>::iterator>& moveList);
 	
 };
 

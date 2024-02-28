@@ -71,7 +71,7 @@ bool Test::test1()
 		// stockfish response
 		string stockfish = ReadyChessEngine::GiveAnswer(("position fen " + fen[i] + "\ngo perft " + to_string(depth) + "\n\quit\n").c_str());
 
-		Board* board = MoveGeneration::boardFromFEN(fen[i]);
+		Board* board = UciTranslator::boardFromFEN(fen[i]);
 		
 		MoveGeneration::output = "";
 		auto start = high_resolution_clock::now();
@@ -121,8 +121,8 @@ int bitScanForward2(Bitboard bb)
 }
 bool Test::test3()
 {
-	Board* b = MoveGeneration::boardFromFEN("r1b1k2r/pppq1ppp/2n2n2/1N1pN3/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
-	Board* b2 = MoveGeneration::boardFromFEN("r1b1k2r/ppp2ppp/2n2n2/1N1p4/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
+	Board* b = UciTranslator::boardFromFEN("r1b1k2r/pppq1ppp/2n2n2/1N1pN3/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
+	Board* b2 = UciTranslator::boardFromFEN("r1b1k2r/ppp2ppp/2n2n2/1N1p4/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
 	cout << Game::Evaluate(*b)<<" " << Game::Evaluate(*b2);
 	return true;
 }
@@ -131,14 +131,13 @@ bool Test::test3()
 bool Test::test4()
 {
 	GamePrepare();
-	Board* board = MoveGeneration::boardFromFEN("r1b1k2r/pppq1ppp/2n2n2/1N1pN3/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
+	Board* board = UciTranslator::boardFromFEN("r1b1k2r/pppq1ppp/2n2n2/1N1pN3/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
 	printBoard(*board);
 
 	/*list<Move> moveList = list<Move>();
 	MoveGeneration::generateMovesNew(*board,BLACK, moveList);*/
 	auto start = high_resolution_clock::now();
-	Game::maxTime = 30;
-	Game::start = start;
+
 	Move bestMove=Game::PickBestMove(*board, board->whoToMove,3);
 	cout << "Best move: " << bestMove;
 	auto stop = high_resolution_clock::now();
@@ -152,7 +151,7 @@ bool Test::test4()
 }
 bool Test::test7()
 {
-	Board* board = MoveGeneration::boardFromFEN("r1b1k2r/pppq1ppp/5n2/1N1pP3/1P2p3/4P2P/1PP2PP1/R1BQKB1R b KQkq - 0 10");
+	Board* board = UciTranslator::boardFromFEN("r1b1k2r/pppq1ppp/5n2/1N1pP3/1P2p3/4P2P/1PP2PP1/R1BQKB1R b KQkq - 0 10");
 	printBoard(*board);
 	list<Move> moveList = list<Move>();
 	Game::quisanceSearch(*board, board->whoToMove, -9999, 9999, 100, 0, moveList);
@@ -185,7 +184,7 @@ bool Test::test5()
 bool Test::test6()
 {
 	GamePrepare();
-	Board* board = MoveGeneration::boardFromFEN("rn1qk2r/5ppp/p3pn2/1p4B1/3P4/P1N2Q2/B4PPP/R4RK1 b kq - 0 13");
+	Board* board = UciTranslator::boardFromFEN("rn1qk2r/5ppp/p3pn2/1p4B1/3P4/P1N2Q2/B4PPP/R4RK1 b kq - 0 13");
 	//printBoard(*board);
 
 	UciTranslator tr = UciTranslator();

@@ -45,9 +45,6 @@ public:
 	static int goPerft(Board& board, Color color, int max_depth, int depth=1);
 
 
-	static Board* boardFromFEN(string fen);
-
-
 	
 	static void addMovesToList(Board&, Color, int figure_type, int index_figure, Bitboard attacks, list<Move>&);
 	

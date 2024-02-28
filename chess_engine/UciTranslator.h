@@ -18,7 +18,9 @@ class UciTranslator
 public:
 	UciTranslator() { GamePrepare(); };
 
+	static Board* boardFromFEN(string fen);
 	static string TranslateMove(Board&, Move&);
+
 	int goPerft(int depth);
 	void showBoard();
 	void readBoard(Board&);
