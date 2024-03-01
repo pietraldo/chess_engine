@@ -187,10 +187,24 @@ void UciTranslator::startComunication()
 				Board* b = UciTranslator::boardFromFEN(fen);
 				tr.readBoard(*b);
 			}
+			else if (command == "startpos")
+			{
+				string startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+				Board* b = UciTranslator::boardFromFEN(startpos);
+				tr.readBoard(*b);
+			}
 		}
 		else if (command == "d")
 		{
 			tr.showBoard();
+		}
+		else if (command == "uci")
+		{
+			cout << "uciok" << endl;
+		}
+		else if (command == "isready")
+		{
+			cout << "readyok" << endl;
 		}
 		else if (command == "go")
 		{
