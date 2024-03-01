@@ -123,7 +123,7 @@ bool Test::test3()
 {
 	Board* b = UciTranslator::boardFromFEN("r1b1k2r/pppq1ppp/2n2n2/1N1pN3/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
 	Board* b2 = UciTranslator::boardFromFEN("r1b1k2r/ppp2ppp/2n2n2/1N1p4/1b1Pp3/P3P2P/1PPB1PP1/R2QKB1R b KQkq - 3 9");
-	cout << Game::Evaluate(*b)<<" " << Game::Evaluate(*b2);
+	cout << Evaluation::Evaluate(*b)<<" " << Evaluation::Evaluate(*b2);
 	return true;
 }
 
@@ -143,7 +143,7 @@ bool Test::test4()
 	auto stop = high_resolution_clock::now();
 	double seconds = (double)duration_cast<microseconds>(stop - start).count() / 1000000;
 	
-	cout << " " << Game::num << endl;
+	
 	cout << "Time: " << seconds << endl << endl;
 
 	cout<<UciTranslator::TranslateMove(*board, bestMove);

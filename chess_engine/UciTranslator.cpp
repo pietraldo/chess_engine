@@ -155,7 +155,7 @@ void UciTranslator::getBestMove(int depth, int maxTime)
 	auto stop = std::chrono::high_resolution_clock::now();
 	double seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000000;
 
-	cout << " " << Game::num << endl;
+	
 	cout << "Time: " << seconds << endl << endl;
 
 	cout << "bestmove " << TranslateMove(board,bestMove)<<endl;

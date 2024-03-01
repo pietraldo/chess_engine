@@ -132,6 +132,7 @@
     <Text Include="rookMagic.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Evaluation.cpp" />
     <ClCompile Include="Functions.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GamePrepare.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="variables.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Evaluation.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GamePrepare.h" />
