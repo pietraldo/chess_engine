@@ -2,9 +2,9 @@
 
 ## Introduction
 
-I'm building a chess engine in C++, using bitboards and some smart tricks with magic numbers to make it efficient. Right now, my main goal is to make the move generation better.
+I'm building chess engine in c++. Engine is based on Bitboards and MagicBitboards. It uses alpha-beta pruning and quisance search 
 
-## Instalaction
+## Instalation
 
 ### Windows
 On Windows you can just open chess_engine.sln in Visual Studio and compile it.
