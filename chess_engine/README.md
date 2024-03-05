@@ -4,6 +4,11 @@
 
 I'm building a chess engine in C++, using bitboards and some smart tricks with magic numbers to make it efficient. Right now, my main goal is to make the move generation better.
 
+## Instalation
+
+g++ -O3 -march=native -o game3 prog.cpp Game.cpp Functions.cpp MoveGeneration.cpp UciTranslator.cpp variables.cpp MagicBitboards.cpp GamePrepare.cpp Evaluation.cpp -lm
+
+
 ## Roadmap
 
 Here's the plan:
