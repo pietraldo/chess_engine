@@ -21,8 +21,12 @@ cd chess_engine
 ```
 3. Compile
 ```bash
-g++ -O3 -march=native -o game3 prog.cpp Game.cpp Functions.cpp MoveGeneration.cpp UciTranslator.cpp variables.cpp MagicBitboards.cpp GamePrepare.cpp Evaluation.cpp -lm
+g++ -O3 -march=native -o kuba_engine prog.cpp Game.cpp Functions.cpp MoveGeneration.cpp UciTranslator.cpp variables.cpp MagicBitboards.cpp GamePrepare.cpp Evaluation.cpp -lm
 ```
+4. Turn on Engine
+   ```bash
+./kuba_engine
+   ```
 
 ## Usage
 I have implemented so far few UCI commends:
