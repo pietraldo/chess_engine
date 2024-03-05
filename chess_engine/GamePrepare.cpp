@@ -209,7 +209,7 @@ Bitboard GamePrepare::rookMoveForPossition(Bitboard occupancy, int index)
 	 int size = rookShifts[index];
 
 
-	 Bitboard* keys = new Bitboard[exp2(size)];
+	 Bitboard* keys = new Bitboard[(int)exp2(size)];
 	 int t = 0;
 	 for (int i = 0; i < p; i++)
 	 {
@@ -269,7 +269,7 @@ Bitboard GamePrepare::rookMoveForPossition(Bitboard occupancy, int index)
 		 int size = rookShifts[index];
 
 
-		 attackRook[index] = new Bitboard[exp2(size)];
+		 attackRook[index] = new Bitboard[(int)exp2(size)];
 		 Bitboard* keys = generateKeysRook(index);
 
 		 
@@ -349,7 +349,7 @@ Bitboard GamePrepare::rookMoveForPossition(Bitboard occupancy, int index)
  {
 	 int size = bishopShifts[index];
 
-	 Bitboard* keys = new Bitboard[exp2(size)];
+	 Bitboard* keys = new Bitboard[(int)exp2(size)];
 	 for (int i = 0; i < exp2(size); i++)
 	 {
 		 keys[i] = 0;
@@ -380,7 +380,7 @@ Bitboard GamePrepare::rookMoveForPossition(Bitboard occupancy, int index)
 		 int size = bishopShifts[index];
 
 
-		 attacBishop[index] = new Bitboard[exp2(size)];
+		 attacBishop[index] = new Bitboard[(int)exp2(size)];
 		 Bitboard* keys = generateKeysBishop(index);
 
 

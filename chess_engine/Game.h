@@ -4,7 +4,6 @@
 #include <fstream>
 #include <algorithm>
 #include <list>
-#include <intrin.h>
 #include <string>
 #include <iomanip> 
 #include <algorithm> // for sort

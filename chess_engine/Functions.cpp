@@ -1,11 +1,18 @@
 #include "Functions.h"
 
+#ifdef _WIN32
 int bitScanForward(Bitboard bb)
 {
 	unsigned long index;
 	_BitScanForward64(&index, bb);
 	return index;
 }
+#elif __linux__
+int bitScanForward(Bitboard bb)
+{
+	return __builtin_ctzll(bb);
+}
+#endif
 
 std::ostream& operator<<(std::ostream& os, const Move& m) {
 	int one = bitScanForward(m.move);

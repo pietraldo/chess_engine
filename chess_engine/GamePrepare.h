@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 #include "MagicBitboards.h"
 #include "variables.h"
