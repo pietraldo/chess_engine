@@ -12,7 +12,7 @@ On Windows you can just open chess_engine.sln in Visual Studio and compile it.
 ### Linux
 1. Clone repository
 ``` bash
- git clone https://github.com/pietraldo/sudoku-solver.git
+ git clone https://github.com/pietraldo/chess_engine.git
 ```
 2. Go to folder
 ``` bash
