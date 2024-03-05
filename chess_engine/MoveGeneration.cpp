@@ -521,31 +521,15 @@ void MoveGeneration::generateOnlyCaptureMoves(Board& board, Color color, list<Mo
 
 		}
 
-		//if (num_checks == 1)
-		//{
-		//	// generating moves of figures that are not pinned and this figures can go only for fields that are in stop check fields
-		//	vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN };
-		//	for (auto figure : figures) {
-		//		generateMoves(board, color, figure, moveList, stopCheckFields , pinned);
-		//	}
-		//	generateMoves(board, color, KING, moveList, (~attackMap), pinned);
+		// generating moves of figures that are not pinned and this figures can go only for fields that are in stop check fields
+		vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN };
+		for (auto figure : figures) {
+			generateMoves(board, color, figure, moveList, stopCheckFields & board.occupancy[oponent], pinned);
+		}
+		generateMoves(board, color, KING, moveList, (~attackMap) & board.occupancy[oponent], pinned);
 
 
-		//	addPawnMoves(board, color, moveList, stopCheckFields, pinned);
-		//}
-		//else
-		//{
-			// generating moves of figures that are not pinned and this figures can go only for fields that are in stop check fields
-			vector<Figure> figures = { ROOK, BISHOP, KNIGHT, QUEEN };
-			for (auto figure : figures) {
-				generateMoves(board, color, figure, moveList, stopCheckFields & board.occupancy[oponent], pinned);
-			}
-			generateMoves(board, color, KING, moveList, (~attackMap) & board.occupancy[oponent], pinned);
-
-
-			addPawnMoves(board, color, moveList, stopCheckFields & board.occupancy[oponent], pinned);
-		/*}*/
-		
+		addPawnMoves(board, color, moveList, stopCheckFields & board.occupancy[oponent], pinned);
 	}
 }
 void MoveGeneration::generateOnlyCaptureMoves2(Board& board, Color color, list<Move>& moveList)
