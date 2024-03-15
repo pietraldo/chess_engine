@@ -15,11 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="bishopMagic.txt" />
-    <Text Include="nowy.txt" />
-    <Text Include="rookMagic.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Functions.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
@@ -88,5 +83,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="bishopMagic.txt" />
+    <Text Include="rookMagic.txt" />
   </ItemGroup>
 </Project>

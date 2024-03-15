@@ -10,4 +10,3 @@ int bit(Bitboard number, Bitboard index);
 void printBitboard(Bitboard);
 void printBoard(Board);
 std::ostream& operator<<(std::ostream& os, const Move& move);
-int bitScanForward(Bitboard bb);

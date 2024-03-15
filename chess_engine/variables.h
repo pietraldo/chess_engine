@@ -1,12 +1,15 @@
 #pragma once
 
-#include <cstdint>
-
 #define M 64
 #define N 8
 #define P 6
 
+#include <cstdint>
+#include <string>
+#include <iostream>
+
 using Bitboard = uint64_t;
+int bitScanForward(Bitboard bb);
 
 
 enum Color { WHITE, BLACK };
@@ -42,8 +45,8 @@ typedef struct Board
 	}
 };
 
-
-typedef struct Move
+//TODO: delete typedef
+struct Move
 {
 	Bitboard move=0; // bitboard two do xor operation on figrue[type_piece]
 	int type_piece=0; // index of Bitboard - what type is this figure  (color * P + typePiece)
@@ -54,6 +57,21 @@ typedef struct Move
 
 	bool castleRights[2];
 	int enPassant;  // and this also
+
+	Move() = default;
+	Move(const Move& m)
+	{
+		move = m.move;
+		move2 = m.move2;
+		move3 = m.move3;
+		type_piece = m.type_piece;
+		type_piece2 = m.type_piece2;
+		type_piece3 = m.type_piece3;
+		castleRights[0] = m.castleRights[0];
+		castleRights[1] = m.castleRights[1];
+		enPassant = m.enPassant;
+	}
+	std::string MovetoString() const;
 };
 
 constexpr Bitboard empty = 0ULL;

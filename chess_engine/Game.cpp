@@ -129,7 +129,9 @@ Move Game::PickBestMove(Board& board, Color color, int maxDepth, int maxTime)
 				}
 			}
 		}
-		cout << "DEPTH: " << i << " best move: " << bestMove << endl;
+
+		UciTranslator::giveResponse("info DEPTH: " + to_string(i) + " best move: " + bestMove.MovetoString());
+		//cout << "DEPTH: " << i << " best move: " << bestMove << endl;
 		bestMoveLastDepth = bestMove;
 		bestEvalLastMove = bestEval;
 	}

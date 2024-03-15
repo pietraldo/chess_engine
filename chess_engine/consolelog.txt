@@ -1,0 +1,4 @@
+go perft 4uciis readyisreadygo euci
+isready
+d
+go
